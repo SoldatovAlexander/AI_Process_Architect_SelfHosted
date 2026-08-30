@@ -1,0 +1,30 @@
+{
+  "count": 230,
+  "numbers": [
+    71,
+    300
+  ],
+  "unique_ids": 230,
+  "categories": {
+    "Sales & CRM": 24,
+    "Finance & Procurement": 24,
+    "Support & CX": 21,
+    "HR & People": 20,
+    "Marketing & Content": 20,
+    "E-commerce & Inventory": 20,
+    "Operations & Documents": 20,
+    "IT, DevOps & Security": 22,
+    "Analytics, Risk & Compliance": 21,
+    "Autonomous Agents": 28,
+    "Cross-functional": 10
+  },
+  "priorities": {
+    "P0": 92,
+    "P1": 103,
+    "P2": 35
+  },
+  "agent_processes": 28,
+  "uses_ai": 48,
+  "hitl": 58,
+  "validation": "passed"
+}

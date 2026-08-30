@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-process-architect.local/schemas/license-envelope-v1.schema.json",
+  "title": "AI Process Architect signed license envelope v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["payload", "signature"],
+  "properties": {
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "licenseId", "keyId", "deploymentId", "workspaceId", "planId", "catalogVersion", "issuedAt", "notBefore", "expiresAt", "graceUntil"],
+      "properties": {
+        "schemaVersion": {"const": "1"},
+        "licenseId": {"type": "string", "pattern": "^[A-Za-z0-9._-]{8,128}$"},
+        "keyId": {"type": "string", "pattern": "^[A-Za-z0-9._-]{3,64}$"},
+        "customerId": {"type": "string", "minLength": 1, "maxLength": 128},
+        "deploymentId": {"type": "string", "format": "uuid"},
+        "workspaceId": {"type": "string", "format": "uuid"},
+        "planId": {"type": "string", "pattern": "^[a-z][a-z0-9_-]{2,63}$"},
+        "catalogVersion": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+$"},
+        "issuedAt": {"type": "string", "format": "date-time"},
+        "notBefore": {"type": "string", "format": "date-time"},
+        "expiresAt": {"type": "string", "format": "date-time"},
+        "graceUntil": {"type": "string", "format": "date-time"},
+        "entitlementOverrides": {
+          "type": "object",
+          "additionalProperties": {"oneOf": [{"type": "boolean"}, {"type": "integer", "minimum": -1}]}
+        }
+      }
+    },
+    "signature": {"type": "string", "pattern": "^[A-Za-z0-9_-]{80,100}$"}
+  }
+}

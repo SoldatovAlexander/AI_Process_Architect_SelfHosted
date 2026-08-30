@@ -1,0 +1,168 @@
+# Customer-operated stack. This file is published as compose.yml in the public self-hosted repository.
+# It contains no hosted billing, Stripe, issuer, or service-owned LLM credentials.
+name: ai-process-architect
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-process_architect}
+      POSTGRES_USER: ${POSTGRES_USER:-process_architect}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.compose}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks: [app]
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - path: .env.compose
+        required: false
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-process_architect}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.compose}@db:5432/${POSTGRES_DB:-process_architect}
+      AUTH_SECRET_KEY: ${AUTH_SECRET_KEY:?Set AUTH_SECRET_KEY in .env.compose}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-15}
+      REFRESH_TOKEN_EXPIRE_DAYS: ${REFRESH_TOKEN_EXPIRE_DAYS:-30}
+      DEPLOYMENT_PROFILE: ${DEPLOYMENT_PROFILE:-default}
+      DEPLOYMENT_PROFILE_PATH: ${DEPLOYMENT_PROFILE_PATH:-}
+      SELF_HOSTED_DEFAULT_PLAN_ID: ${SELF_HOSTED_DEFAULT_PLAN_ID:-read_only}
+      LICENSE_TRUSTED_KEYS_PATH: ${LICENSE_TRUSTED_KEYS_PATH:-/app/config/licensing/trusted-public-keys.json}
+      LICENSE_REVOCATIONS_PATH: ${LICENSE_REVOCATIONS_PATH:-/app/config/licensing/revocations.json}
+      LICENSE_SERVER_URL: ${LICENSE_SERVER_URL:-}
+      LICENSE_SERVER_TOKEN: ${LICENSE_SERVER_TOKEN:-}
+      LICENSE_CLOCK_SKEW_SECONDS: ${LICENSE_CLOCK_SKEW_SECONDS:-300}
+      LLM_CREDENTIAL_ENCRYPTION_KEY: ${LLM_CREDENTIAL_ENCRYPTION_KEY:?Set LLM_CREDENTIAL_ENCRYPTION_KEY in .env.compose}
+      LLM_SYSTEM_FALLBACK_ENABLED: "false"
+      METRICS_ENABLED: ${METRICS_ENABLED:-true}
+      SUPPORT_DIAGNOSTICS_ENABLED: ${SUPPORT_DIAGNOSTICS_ENABLED:-true}
+      AGENT_RUNTIME_CALLBACK_TOKEN: ${AGENT_RUNTIME_CALLBACK_TOKEN:-}
+    volumes:
+      # Customer-controlled trust store and revocation list are re-read without rebuilding the image.
+      - ./config/licensing:/app/config/licensing:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 6
+    networks: [app]
+
+  agent-worker:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - path: .env.compose
+        required: false
+    command: ["python", "-m", "process_architect_api.agent_worker"]
+    environment:
+      MIGRATE_ON_START: "0"
+      APP_ENV: ${APP_ENV:-production}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-process_architect}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.compose}@db:5432/${POSTGRES_DB:-process_architect}
+      AUTH_SECRET_KEY: ${AUTH_SECRET_KEY:?Set AUTH_SECRET_KEY in .env.compose}
+      DEPLOYMENT_PROFILE: ${DEPLOYMENT_PROFILE:-default}
+      DEPLOYMENT_PROFILE_PATH: ${DEPLOYMENT_PROFILE_PATH:-}
+      SELF_HOSTED_DEFAULT_PLAN_ID: ${SELF_HOSTED_DEFAULT_PLAN_ID:-read_only}
+      AGENT_WORKER_POLL_SECONDS: ${AGENT_WORKER_POLL_SECONDS:-2}
+      AGENT_WORKER_LEASE_SECONDS: ${AGENT_WORKER_LEASE_SECONDS:-90}
+      AGENT_WORKER_MAX_ATTEMPTS: ${AGENT_WORKER_MAX_ATTEMPTS:-5}
+      AGENT_WORKER_DISPATCH_ENABLED: ${AGENT_WORKER_DISPATCH_ENABLED:-true}
+      AGENT_RUNTIME_CALLBACK_BASE_URL: http://api:8000
+      OPENCLAW_RUNTIME_URL: ${OPENCLAW_RUNTIME_URL:-}
+      OPENCLAW_RUNTIME_TOKEN: ${OPENCLAW_RUNTIME_TOKEN:-}
+      HERMES_RUNTIME_URL: ${HERMES_RUNTIME_URL:-}
+      HERMES_RUNTIME_TOKEN: ${HERMES_RUNTIME_TOKEN:-}
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [app]
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${WEB_BIND_ADDRESS:-127.0.0.1}:${WEB_PORT:-5173}:80"
+    networks: [app]
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.20.1
+    restart: unless-stopped
+    profiles: [monitoring]
+    environment:
+      DATA_SOURCE_NAME: postgresql://${POSTGRES_USER:-process_architect}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.compose}@db:5432/${POSTGRES_DB:-process_architect}?sslmode=disable
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [app]
+
+  prometheus:
+    image: prom/prometheus:v3.14.0
+    restart: unless-stopped
+    profiles: [monitoring]
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus", "--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-15d}"]
+    volumes:
+      - ./infra/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./infra/monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus_data:/prometheus
+    depends_on:
+      api:
+        condition: service_healthy
+      postgres-exporter:
+        condition: service_started
+    ports:
+      - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
+    networks: [app]
+
+  grafana:
+    image: grafana/grafana:13.2.0
+    restart: unless-stopped
+    profiles: [monitoring]
+    env_file:
+      - path: .env.compose
+        required: false
+    entrypoint: ["/bin/sh", "/opt/process-architect/grafana-entrypoint.sh"]
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+    volumes:
+      - ./infra/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infra/monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ./infra/monitoring/grafana/entrypoint.sh:/opt/process-architect/grafana-entrypoint.sh:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      prometheus:
+        condition: service_started
+    ports:
+      - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
+    networks: [app]
+
+volumes:
+  postgres_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  app:
+    driver: bridge

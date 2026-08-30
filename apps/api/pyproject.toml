@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "process-architect-api"
+version = "0.2.0rc1"
+description = "Python backend for AI Process Architect"
+requires-python = ">=3.12"
+dependencies = [
+  "alembic>=1.18,<2",
+  "cryptography>=46,<47",
+  "email-validator>=2.3,<3",
+  "fastapi>=0.136,<1",
+  "httpx>=0.28,<1",
+  "jsonpatch>=1.33,<2",
+  "jsonpointer>=3.0,<4",
+  "jsonschema>=4.26,<5",
+  "psycopg[binary]>=3.3,<4",
+  "prometheus-client>=0.23,<1",
+  "pwdlib[argon2]>=0.3,<1",
+  "python-dateutil==2.9.0.post0",
+  "pyjwt>=2.11,<3",
+  "pydantic-settings>=2.13,<3",
+  "sqlalchemy>=2.0,<3",
+  "uvicorn>=0.41,<1"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.4,<9"
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/process_architect_api"]
+
+[project.scripts]
+process-architect = "process_architect_api.cli:main"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+markers = [
+  "integration: requires Docker or an external service"
+]

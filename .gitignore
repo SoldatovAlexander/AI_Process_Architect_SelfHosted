@@ -1,15 +1,27 @@
 .DS_Store
-.env
-.env.*
-!.env.*.example
-*.pem
-*.key
-private/
-artifacts/
-output/
+~$*.docx
 node_modules/
 dist/
+*.tsbuildinfo
+npm-debug.log*
+.env
+.env.compose
+.env.*
+!.env.*.example
+private/
+*.pem
 .venv/
 __pycache__/
 .pytest_cache/
 *.py[cod]
+artifacts/*.db
+output/playwright/
+output/acceptance-export-*/
+.playwright-cli/
+/AI Process Architect video/
+
+# Local source and research documents; keep them outside the repository.
+/AI Process Architect.docx
+/Executive Summary*.docx
+/Executive Summary*.pdf
+/deep-research-report.md

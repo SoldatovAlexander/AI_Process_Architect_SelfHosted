@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1",
+  "catalogVersion": "2026-08-20",
+  "currency": "USD",
+  "source": "https://api-docs.deepseek.com/quick_start/pricing/",
+  "models": [
+    {
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "effectiveFrom": "2026-08-20T00:00:00Z",
+      "inputCacheHitPicousdPerToken": 2800,
+      "inputCacheMissPicousdPerToken": 140000,
+      "outputPicousdPerToken": 280000,
+      "timeWindows": []
+    }
+  ]
+}

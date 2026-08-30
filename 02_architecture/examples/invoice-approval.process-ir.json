@@ -1,0 +1,450 @@
+{
+  "schemaVersion": "0.2",
+  "process": {
+    "id": "process_invoice_approval",
+    "name": "Invoice Approval",
+    "description": "Review an incoming supplier invoice, approve or reject it, post approved invoices to ERP, and notify the requester.",
+    "domain": "finance",
+    "maturity": "specification_ready"
+  },
+  "actors": [
+    {
+      "id": "actor_finance_specialist",
+      "name": "Finance Specialist",
+      "type": "human",
+      "responsibilities": [
+        "Verify invoice details",
+        "Approve or reject the invoice"
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "id": "system_invoice_mailbox",
+      "name": "Invoice Mailbox",
+      "type": "email",
+      "integrationStatus": "api_available",
+      "notes": "Supplier invoices arrive as email attachments."
+    },
+    {
+      "id": "system_erp",
+      "name": "ERP",
+      "type": "accounting",
+      "integrationStatus": "unknown",
+      "notes": "The target ERP and posting API are not selected yet."
+    },
+    {
+      "id": "system_messenger",
+      "name": "Team Messenger",
+      "type": "messenger",
+      "integrationStatus": "api_available",
+      "notes": "Used to notify the invoice requester."
+    }
+  ],
+  "dataObjects": [
+    {
+      "id": "data_invoice",
+      "name": "Invoice",
+      "fields": [
+        {
+          "name": "supplier",
+          "type": "string",
+          "required": true,
+          "source": "invoice_attachment"
+        },
+        {
+          "name": "invoice_number",
+          "type": "string",
+          "required": true,
+          "source": "invoice_attachment"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "source": "invoice_attachment"
+        },
+        {
+          "name": "approval_status",
+          "type": "string",
+          "required": false,
+          "source": "finance_review"
+        }
+      ]
+    },
+    {
+      "id": "data_erp_document",
+      "name": "ERP Document",
+      "fields": [
+        {
+          "name": "document_id",
+          "type": "string",
+          "required": true,
+          "source": "erp"
+        }
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "id": "step_start",
+      "type": "start",
+      "title": "Invoice received",
+      "description": "A supplier invoice arrives in the invoice mailbox.",
+      "actorId": null,
+      "systemId": "system_invoice_mailbox",
+      "inputs": [],
+      "outputs": [
+        "data_invoice"
+      ],
+      "operation": {
+        "kind": "trigger",
+        "name": "email_received",
+        "parameters": {}
+      },
+      "missingFields": [],
+      "automationHint": {
+        "target": "n8n",
+        "nodeType": "n8n-nodes-base.emailReadImap"
+      },
+      "execution": {
+        "performedBy": "system",
+        "autonomy": "manual",
+        "approvalRequired": false,
+        "restrictions": []
+      }
+    },
+    {
+      "id": "step_review",
+      "type": "human_task",
+      "title": "Review invoice",
+      "description": "Finance verifies supplier, amount, invoice number, and supporting documents.",
+      "actorId": "actor_finance_specialist",
+      "systemId": null,
+      "inputs": [
+        "data_invoice"
+      ],
+      "outputs": [
+        "data_invoice"
+      ],
+      "operation": {
+        "kind": "human_review",
+        "name": "review_invoice",
+        "parameters": {}
+      },
+      "missingFields": [],
+      "automationHint": null,
+      "execution": {
+        "performedBy": "human",
+        "autonomy": "manual",
+        "approvalRequired": false,
+        "restrictions": []
+      }
+    },
+    {
+      "id": "step_approval_gate",
+      "type": "decision",
+      "title": "Invoice approved?",
+      "description": "Route the invoice based on the finance decision.",
+      "actorId": "actor_finance_specialist",
+      "systemId": null,
+      "inputs": [
+        "data_invoice"
+      ],
+      "outputs": [],
+      "operation": {
+        "kind": "condition",
+        "name": "approval_status_check",
+        "parameters": {}
+      },
+      "missingFields": [],
+      "automationHint": {
+        "target": "n8n",
+        "nodeType": "n8n-nodes-base.if"
+      },
+      "execution": {
+        "performedBy": "human",
+        "autonomy": "manual",
+        "approvalRequired": false,
+        "restrictions": []
+      }
+    },
+    {
+      "id": "step_post_erp",
+      "type": "system_task",
+      "title": "Post invoice to ERP",
+      "description": "Create an accounts payable document for the approved invoice.",
+      "actorId": null,
+      "systemId": "system_erp",
+      "inputs": [
+        "data_invoice"
+      ],
+      "outputs": [
+        "data_erp_document"
+      ],
+      "operation": {
+        "kind": "api_call",
+        "name": "create_payable_document",
+        "parameters": {
+          "company_code": "{{missing.erp_company_code}}"
+        }
+      },
+      "missingFields": [
+        "erp_company_code"
+      ],
+      "automationHint": {
+        "target": "n8n",
+        "nodeType": "n8n-nodes-base.httpRequest"
+      },
+      "execution": {
+        "performedBy": "system",
+        "autonomy": "autonomous",
+        "approvalRequired": false,
+        "restrictions": []
+      }
+    },
+    {
+      "id": "step_notify_rejection",
+      "type": "system_task",
+      "title": "Notify requester of rejection",
+      "description": "Send the rejection decision to the invoice requester.",
+      "actorId": null,
+      "systemId": "system_messenger",
+      "inputs": [
+        "data_invoice"
+      ],
+      "outputs": [],
+      "operation": {
+        "kind": "message",
+        "name": "send_rejection_notice",
+        "parameters": {}
+      },
+      "missingFields": [],
+      "automationHint": {
+        "target": "n8n",
+        "nodeType": "n8n-nodes-base.httpRequest"
+      },
+      "execution": {
+        "performedBy": "system",
+        "autonomy": "autonomous",
+        "approvalRequired": false,
+        "restrictions": []
+      }
+    },
+    {
+      "id": "step_end_posted",
+      "type": "end",
+      "title": "Invoice posted",
+      "description": "The approved invoice was posted to ERP.",
+      "actorId": null,
+      "systemId": null,
+      "inputs": [],
+      "outputs": [],
+      "operation": {
+        "kind": "end",
+        "name": "complete",
+        "parameters": {}
+      },
+      "missingFields": [],
+      "automationHint": null,
+      "execution": {
+        "performedBy": "system",
+        "autonomy": "manual",
+        "approvalRequired": false,
+        "restrictions": []
+      }
+    },
+    {
+      "id": "step_end_rejected",
+      "type": "end",
+      "title": "Invoice rejected",
+      "description": "The requester was notified that the invoice was rejected.",
+      "actorId": null,
+      "systemId": null,
+      "inputs": [],
+      "outputs": [],
+      "operation": {
+        "kind": "end",
+        "name": "complete",
+        "parameters": {}
+      },
+      "missingFields": [],
+      "automationHint": null,
+      "execution": {
+        "performedBy": "system",
+        "autonomy": "manual",
+        "approvalRequired": false,
+        "restrictions": []
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_start_review",
+      "from": "step_start",
+      "to": "step_review",
+      "condition": null,
+      "ruleIds": []
+    },
+    {
+      "id": "edge_review_gate",
+      "from": "step_review",
+      "to": "step_approval_gate",
+      "condition": null,
+      "ruleIds": []
+    },
+    {
+      "id": "edge_approved",
+      "from": "step_approval_gate",
+      "to": "step_post_erp",
+      "condition": {
+        "left": "invoice.approval_status",
+        "operator": "==",
+        "right": "approved"
+      },
+      "ruleIds": [
+        "rule_approved"
+      ]
+    },
+    {
+      "id": "edge_rejected",
+      "from": "step_approval_gate",
+      "to": "step_notify_rejection",
+      "condition": {
+        "left": "invoice.approval_status",
+        "operator": "==",
+        "right": "rejected"
+      },
+      "ruleIds": [
+        "rule_rejected"
+      ]
+    },
+    {
+      "id": "edge_post_end",
+      "from": "step_post_erp",
+      "to": "step_end_posted",
+      "condition": null,
+      "ruleIds": []
+    },
+    {
+      "id": "edge_rejection_end",
+      "from": "step_notify_rejection",
+      "to": "step_end_rejected",
+      "condition": null,
+      "ruleIds": []
+    }
+  ],
+  "exceptions": [
+    {
+      "id": "exception_erp_failure",
+      "sourceStepId": "step_post_erp",
+      "trigger": "ERP posting request fails",
+      "handling": "Keep the invoice in an approved queue and notify finance for manual retry."
+    }
+  ],
+  "openQuestions": [
+    {
+      "id": "question_erp",
+      "priority": "high",
+      "target": {
+        "entity": "system",
+        "id": "system_erp"
+      },
+      "question": "Which ERP, company code, and posting API should be used?",
+      "blocksAutomationReady": true
+    },
+    {
+      "id": "question_rejection_channel",
+      "priority": "medium",
+      "target": {
+        "entity": "system",
+        "id": "system_messenger"
+      },
+      "question": "Which messenger channel identifies the invoice requester?",
+      "blocksAutomationReady": true
+    }
+  ],
+  "readiness": {
+    "overall": 66,
+    "categories": {
+      "structure": {
+        "score": 100,
+        "status": "ok",
+        "notes": []
+      },
+      "actors": {
+        "score": 90,
+        "status": "warning",
+        "notes": [
+          "Finance reviewer is defined, but backup ownership is not defined."
+        ]
+      },
+      "systems": {
+        "score": 55,
+        "status": "warning",
+        "notes": [
+          "Target ERP is unknown."
+        ]
+      },
+      "data": {
+        "score": 70,
+        "status": "warning",
+        "notes": [
+          "ERP field mapping is not defined."
+        ]
+      },
+      "branches": {
+        "score": 100,
+        "status": "ok",
+        "notes": []
+      },
+      "exceptions": {
+        "score": 70,
+        "status": "warning",
+        "notes": [
+          "ERP failure is handled, but notification failure is not handled."
+        ]
+      },
+      "automation": {
+        "score": 40,
+        "status": "blocked",
+        "notes": [
+          "ERP integration and requester notification details are unresolved."
+        ]
+      }
+    }
+  },
+  "passport": {
+    "goal": "Review an incoming supplier invoice, approve or reject it, post approved invoices to ERP, and notify the requester.",
+    "ownerActorId": "actor_finance_specialist",
+    "startsWhen": "Invoice received",
+    "endsWhen": "Invoice posted; Invoice rejected",
+    "inScope": [],
+    "outOfScope": [],
+    "successMetrics": []
+  },
+  "states": [],
+  "stateTransitions": [],
+  "businessRules": [
+    {
+      "id": "rule_approved",
+      "name": "Condition for step_approval_gate",
+      "description": "invoice.approval_status == approved",
+      "type": "deterministic",
+      "source": "Process interview",
+      "appliesToStepIds": [
+        "step_approval_gate"
+      ]
+    },
+    {
+      "id": "rule_rejected",
+      "name": "Condition for step_approval_gate",
+      "description": "invoice.approval_status == rejected",
+      "type": "deterministic",
+      "source": "Process interview",
+      "appliesToStepIds": [
+        "step_approval_gate"
+      ]
+    }
+  ]
+}

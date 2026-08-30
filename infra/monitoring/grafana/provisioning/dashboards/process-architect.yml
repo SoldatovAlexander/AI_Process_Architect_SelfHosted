@@ -1,0 +1,12 @@
+apiVersion: 1
+
+providers:
+  - name: AI Process Architect
+    orgId: 1
+    folder: AI Process Architect
+    type: file
+    disableDeletion: true
+    editable: false
+    updateIntervalSeconds: 30
+    options:
+      path: /var/lib/grafana/dashboards

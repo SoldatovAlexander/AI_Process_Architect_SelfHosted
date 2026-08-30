@@ -1,0 +1,689 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-process-architect.local/schemas/process-ir-0.2.schema.json",
+  "title": "Process IR v0.2",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "process",
+    "passport",
+    "actors",
+    "systems",
+    "dataObjects",
+    "states",
+    "stateTransitions",
+    "businessRules",
+    "steps",
+    "edges",
+    "exceptions",
+    "openQuestions",
+    "readiness"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "0.2"
+    },
+    "process": {
+      "$ref": "#/$defs/process"
+    },
+    "classification": {
+      "$ref": "#/$defs/classification"
+    },
+    "passport": {
+      "$ref": "#/$defs/passport"
+    },
+    "actors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/actor"
+      }
+    },
+    "systems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/system"
+      }
+    },
+    "dataObjects": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/dataObject"
+      }
+    },
+    "states": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/state"
+      }
+    },
+    "stateTransitions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/stateTransition"
+      }
+    },
+    "businessRules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/businessRule"
+      }
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "$ref": "#/$defs/step"
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/edge"
+      }
+    },
+    "exceptions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/exception"
+      }
+    },
+    "openQuestions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/openQuestion"
+      }
+    },
+    "readiness": {
+      "$ref": "#/$defs/readiness"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "process": {
+      "type": "object",
+      "required": ["id", "name", "description", "domain", "maturity"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string"
+        },
+        "maturity": {
+          "enum": [
+            "draft",
+            "diagram_ready",
+            "specification_ready",
+            "automation_ready",
+            "deployment_ready"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "classification": {
+      "type": "object",
+      "required": ["rubricVersion", "status", "entryIds", "classifiedAt", "classifiedByUserId"],
+      "properties": {
+        "rubricVersion": {"type": "string", "minLength": 1},
+        "status": {"enum": ["proposed", "confirmed"]},
+        "entryIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "classifiedAt": {"anyOf": [{"type": "string", "format": "date-time"}, {"type": "null"}]},
+        "classifiedByUserId": {"anyOf": [{"type": "string", "minLength": 1}, {"type": "null"}]}
+      },
+      "additionalProperties": false
+    },
+    "passport": {
+      "type": "object",
+      "required": ["goal", "ownerActorId", "startsWhen", "endsWhen", "inScope", "outOfScope", "successMetrics"],
+      "properties": {
+        "goal": {"type": "string"},
+        "ownerActorId": {
+          "anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]
+        },
+        "startsWhen": {"type": "string"},
+        "endsWhen": {"type": "string"},
+        "inScope": {"type": "array", "items": {"type": "string"}},
+        "outOfScope": {"type": "array", "items": {"type": "string"}},
+        "successMetrics": {"type": "array", "items": {"$ref": "#/$defs/successMetric"}}
+      },
+      "additionalProperties": false
+    },
+    "successMetric": {
+      "type": "object",
+      "required": ["id", "name", "target", "unit"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "name": {"type": "string", "minLength": 1},
+        "target": {"type": "string"},
+        "unit": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "actor": {
+      "type": "object",
+      "required": ["id", "name", "type", "responsibilities"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "enum": ["human", "team", "external_party", "system"]
+        },
+        "responsibilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "system": {
+      "type": "object",
+      "required": ["id", "name", "type", "integrationStatus", "notes"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string"
+        },
+        "integrationStatus": {
+          "enum": ["unknown", "manual", "api_available", "configured", "not_supported"]
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "dataObject": {
+      "type": "object",
+      "required": ["id", "name", "fields"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/dataField"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "dataField": {
+      "type": "object",
+      "required": ["name", "type", "required", "source"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "enum": ["string", "number", "boolean", "date", "datetime", "object", "array", "unknown"]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "source": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "state": {
+      "type": "object",
+      "required": ["id", "dataObjectId", "name", "description", "initial", "terminal"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "dataObjectId": {"$ref": "#/$defs/id"},
+        "name": {"type": "string", "minLength": 1},
+        "description": {"type": "string"},
+        "initial": {"type": "boolean"},
+        "terminal": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "stateTransition": {
+      "type": "object",
+      "required": ["id", "dataObjectId", "fromStateId", "toStateId", "trigger", "ruleIds"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "dataObjectId": {"$ref": "#/$defs/id"},
+        "fromStateId": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+        "toStateId": {"$ref": "#/$defs/id"},
+        "trigger": {"type": "string"},
+        "ruleIds": {"type": "array", "items": {"$ref": "#/$defs/id"}}
+      },
+      "additionalProperties": false
+    },
+    "businessRule": {
+      "type": "object",
+      "required": ["id", "name", "description", "type", "source", "appliesToStepIds"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "name": {"type": "string", "minLength": 1},
+        "description": {"type": "string"},
+        "type": {"enum": ["deterministic", "policy", "ai_assisted"]},
+        "source": {"type": "string"},
+        "appliesToStepIds": {"type": "array", "items": {"$ref": "#/$defs/id"}}
+      },
+      "additionalProperties": false
+    },
+    "step": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "title",
+        "description",
+        "actorId",
+        "systemId",
+        "inputs",
+        "outputs",
+        "operation",
+        "missingFields",
+        "automationHint",
+        "execution"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "enum": ["start", "end", "human_task", "system_task", "decision", "timer", "external_event"]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "actorId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "systemId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "inputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "outputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "operation": {
+          "type": "object",
+          "required": ["kind", "name", "parameters"],
+          "properties": {
+            "kind": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "parameters": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "missingFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "automationHint": {
+          "anyOf": [
+            {
+              "type": "object",
+              "required": ["target", "nodeType"],
+              "properties": {
+                "target": {
+                  "type": "string"
+                },
+                "nodeType": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "execution": {
+          "$ref": "#/$defs/executionPolicy"
+        },
+        "agentConfig": {
+          "anyOf": [
+            {"$ref": "#/$defs/agentConfig"},
+            {"type": "null"}
+          ]
+        },
+        "customLogic": {
+          "anyOf": [
+            {"$ref": "#/$defs/customLogic"},
+            {"type": "null"}
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "customLogic": {
+      "type": "object",
+      "required": [
+        "strategy",
+        "reasonStandardNodesInsufficient",
+        "businessRuleIds",
+        "runtimeProfile",
+        "source",
+        "inputExample",
+        "outputExample",
+        "errorExample",
+        "expectedError",
+        "errorCases",
+        "prohibitions",
+        "generatorVersion",
+        "contentHash",
+        "approvalStatus"
+      ],
+      "properties": {
+        "strategy": {"enum": ["python_code", "python_service", "typescript_node"]},
+        "reasonStandardNodesInsufficient": {"type": "string", "minLength": 1},
+        "businessRuleIds": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/id"}, "uniqueItems": true},
+        "runtimeProfile": {"enum": ["n8n_native_python", "external_python_service", "native_typescript_node"]},
+        "dependencyProfile": {"enum": ["core", "dates", "validation"]},
+        "fallbackReason": {"enum": ["python_runtime_unavailable", "service_network_forbidden", "native_installation_required"]},
+        "operationSpec": {
+          "type": "object",
+          "required": ["kind", "inputField", "outputField", "operator", "threshold"],
+          "properties": {
+            "kind": {"const": "numeric_threshold"},
+            "inputField": {"type": "string", "minLength": 1},
+            "outputField": {"type": "string", "minLength": 1},
+            "operator": {"enum": ["<", "<=", "==", "!=", ">=", ">"]},
+            "threshold": {"type": "number"}
+          },
+          "additionalProperties": false
+        },
+        "source": {"type": "string", "minLength": 1},
+        "inputExample": {},
+        "outputExample": {},
+        "errorExample": {},
+        "expectedError": {"enum": ["TypeError", "ValueError", "KeyError"]},
+        "errorCases": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "prohibitions": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "generatorVersion": {"type": "string", "minLength": 1},
+        "contentHash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "executionEvidence": {
+          "type": "object",
+          "required": ["status", "contentHash", "runner", "checks", "durationMs"],
+          "properties": {
+            "status": {"const": "passed"},
+            "contentHash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+            "runner": {"const": "isolated-python/1.0"},
+            "checks": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+            "durationMs": {"type": "integer", "minimum": 1}
+            ,"dependencyProfile": {"enum": ["core", "dates", "validation"]}
+            ,"operationSpecHash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+          },
+          "additionalProperties": false
+        },
+        "approvalStatus": {"enum": ["draft", "approved", "rejected"]}
+      },
+      "additionalProperties": false
+    },
+    "executionPolicy": {
+      "type": "object",
+      "required": ["performedBy", "autonomy", "approvalRequired", "restrictions"],
+      "properties": {
+        "performedBy": {"enum": ["human", "system", "ai"]},
+        "autonomy": {"enum": ["manual", "assist", "supervised", "autonomous"]},
+        "approvalRequired": {"type": "boolean"},
+        "restrictions": {"type": "array", "items": {"type": "string"}}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"autonomy": {"const": "supervised"}}},
+          "then": {"properties": {"approvalRequired": {"const": true}}}
+        }
+      ],
+      "additionalProperties": false
+    },
+    "agentConfig": {
+      "type": "object",
+      "required": ["knowledgeSources", "allowedStateIds", "stopConditions", "auditEvents", "escalation"],
+      "properties": {
+        "knowledgeSources": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "allowedStateIds": {"type": "array", "items": {"$ref": "#/$defs/id"}},
+        "stopConditions": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "auditEvents": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "escalation": {
+          "type": "object",
+          "required": ["missingSource", "conflictingSources", "lowConfidence", "riskyAction"],
+          "properties": {
+            "missingSource": {"type": "string", "minLength": 1},
+            "conflictingSources": {"type": "string", "minLength": 1},
+            "lowConfidence": {"type": "string", "minLength": 1},
+            "riskyAction": {"type": "string", "minLength": 1}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "edge": {
+      "type": "object",
+      "required": ["id", "from", "to", "condition", "ruleIds"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "from": {
+          "$ref": "#/$defs/id"
+        },
+        "to": {
+          "$ref": "#/$defs/id"
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/condition"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ruleIds": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/id"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "condition": {
+      "type": "object",
+      "required": ["left", "operator", "right"],
+      "properties": {
+        "left": {
+          "type": "string"
+        },
+        "operator": {
+          "enum": ["==", "!=", ">", ">=", "<", "<=", "exists", "not_exists", "contains"]
+        },
+        "right": {
+          "type": ["string", "number", "boolean", "null"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "exception": {
+      "type": "object",
+      "required": ["id", "sourceStepId", "trigger", "handling"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "sourceStepId": {
+          "$ref": "#/$defs/id"
+        },
+        "trigger": {
+          "type": "string"
+        },
+        "handling": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "openQuestion": {
+      "type": "object",
+      "required": ["id", "priority", "target", "question", "blocksAutomationReady"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "priority": {
+          "enum": ["low", "medium", "high"]
+        },
+        "target": {
+          "type": "object",
+          "required": ["entity", "id"],
+          "properties": {
+            "entity": {
+              "enum": ["process", "passport", "actor", "system", "dataObject", "state", "stateTransition", "businessRule", "step", "edge", "exception"]
+            },
+            "id": {
+              "$ref": "#/$defs/id"
+            }
+          },
+          "additionalProperties": false
+        },
+        "question": {
+          "type": "string",
+          "minLength": 1
+        },
+        "blocksAutomationReady": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "readiness": {
+      "type": "object",
+      "required": ["overall", "categories"],
+      "properties": {
+        "overall": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "categories": {
+          "type": "object",
+          "required": ["structure", "actors", "systems", "data", "branches", "exceptions", "automation"],
+          "properties": {
+            "structure": {
+              "$ref": "#/$defs/readinessCategory"
+            },
+            "actors": {
+              "$ref": "#/$defs/readinessCategory"
+            },
+            "systems": {
+              "$ref": "#/$defs/readinessCategory"
+            },
+            "data": {
+              "$ref": "#/$defs/readinessCategory"
+            },
+            "branches": {
+              "$ref": "#/$defs/readinessCategory"
+            },
+            "exceptions": {
+              "$ref": "#/$defs/readinessCategory"
+            },
+            "automation": {
+              "$ref": "#/$defs/readinessCategory"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "readinessCategory": {
+      "type": "object",
+      "required": ["score", "status", "notes"],
+      "properties": {
+        "score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "status": {
+          "enum": ["ok", "warning", "blocked"]
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

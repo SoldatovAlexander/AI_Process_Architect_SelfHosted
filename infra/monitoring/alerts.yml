@@ -1,0 +1,145 @@
+groups:
+  - name: process-architect-availability
+    rules:
+      - alert: ProcessArchitectApiDown
+        expr: up{job="process-architect-api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: AI Process Architect API is unavailable
+          description: Prometheus could not scrape the API for two minutes.
+
+      - alert: ProcessArchitectDatabaseUnavailable
+        expr: process_architect_database_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Application database check is failing
+          description: The API cannot complete its privacy-safe database probe.
+
+      - alert: ProcessArchitectPostgresExporterDown
+        expr: up{job="process-architect-postgres"} == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: PostgreSQL infrastructure metrics are unavailable
+          description: The application may still work, but database capacity metrics are missing.
+
+  - name: process-architect-quality
+    rules:
+      - alert: ProcessArchitectHighErrorRate
+        expr: >-
+          sum(rate(process_architect_http_requests_total{status_class="5xx"}[5m]))
+          /
+          clamp_min(sum(rate(process_architect_http_requests_total[5m])), 0.001)
+          > 0.05
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: API error rate is above 5 percent
+          description: Server errors exceeded the release threshold for ten minutes.
+
+      - alert: ProcessArchitectHighLatency
+        expr: >-
+          histogram_quantile(
+            0.95,
+            sum by (le) (rate(process_architect_http_request_duration_seconds_bucket[5m]))
+          ) > 2
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: API p95 latency is above two seconds
+          description: Check database pressure, LLM latency, and recent deployments.
+
+      - alert: ProcessArchitectDispatchQueueStalled
+        expr: >-
+          sum(process_architect_dispatch_queue_jobs{status=~"queued|retry_wait"}) > 0
+          and process_architect_dispatch_queue_oldest_seconds > 300
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Agent dispatch queue has stalled work
+          description: At least one dispatch has waited for more than five minutes.
+
+      - alert: ProcessArchitectDeadLetterJobs
+        expr: process_architect_dispatch_queue_jobs{status="dead_letter"} > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Agent dispatches reached the dead-letter state
+          description: Review runtime connectivity and the incident journal before replaying work.
+
+      - alert: ProcessArchitectLlmErrorRate
+        expr: >-
+          (
+            sum(rate(process_architect_llm_requests_total{outcome!="success"}[15m]))
+            + sum(rate(process_architect_llm_contract_errors_total[15m]))
+          )
+          /
+          clamp_min(sum(rate(process_architect_llm_requests_total[15m])), 0.001)
+          > 0.10
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: LLM error rate is above 10 percent
+          description: Provider or response-contract errors are elevated.
+
+      - alert: ProcessArchitectAbnormalLlmTokenVolume
+        expr: sum(increase(process_architect_llm_tokens_total[1h])) > 1000000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: LLM token volume exceeded the default hourly threshold
+          description: Verify expected interview load and provider usage before changing the threshold.
+
+      - alert: ProcessArchitectLlmBudgetWarning
+        expr: >-
+          process_architect_llm_monthly_budget_configured == 1
+          and process_architect_llm_monthly_budget_ratio >= 0.8
+          and process_architect_llm_monthly_budget_ratio < 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: LLM spending is approaching the monthly budget
+          description: Estimated LLM cost has reached at least 80 percent of the configured service budget.
+
+      - alert: ProcessArchitectLlmBudgetExceeded
+        expr: >-
+          process_architect_llm_monthly_budget_configured == 1
+          and process_architect_llm_monthly_budget_ratio >= 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: LLM monthly budget has been exceeded
+          description: Review current usage, plan limits, and optional deferral of non-urgent batch work.
+
+      - alert: ProcessArchitectBillingInvoiceMismatch
+        expr: >-
+          increase(process_architect_billing_invoice_reconciliations_total{status=~"mismatch|unmapped"}[10m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: A provider invoice failed local reconciliation
+          description: Review the hosted billing invoice journal before changing access or issuing a correction.
+
+      - alert: ProcessArchitectBillingInvoiceUnpriced
+        expr: >-
+          increase(process_architect_billing_invoice_reconciliations_total{status="unpriced"}[10m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: An invoice was received without an approved local rate
+          description: Configure and version the hosted rate card; do not infer an expected amount from provider data.

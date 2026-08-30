@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "1",
+  "catalogVersion": "1.1",
+  "entitlements": [
+    {"id": "project.create", "kind": "boolean", "description": "Create a project and its initial revision."},
+    {"id": "project.max_active", "kind": "integer", "description": "Maximum active projects per workspace; -1 means unlimited."},
+    {"id": "workspace.max_members", "kind": "integer", "description": "Maximum members per workspace; -1 means unlimited."},
+    {"id": "export.spec", "kind": "boolean", "description": "Export implementation specifications."},
+    {"id": "export.bpmn", "kind": "boolean", "description": "Export BPMN and draw.io diagrams."},
+    {"id": "export.n8n", "kind": "boolean", "description": "Export n8n workflows and setup packages."},
+    {"id": "export.agent", "kind": "boolean", "description": "Export Agent-ready runtime packages."},
+    {"id": "code.generate", "kind": "boolean", "description": "Generate and validate custom automation code."},
+    {"id": "template.private", "kind": "boolean", "description": "Create private templates and collections."},
+    {"id": "interview.import", "kind": "boolean", "description": "Import and analyze text interview sources."},
+    {"id": "runtime.publish", "kind": "boolean", "description": "Publish inactive artifacts to configured runtimes."},
+    {"id": "agent.execute", "kind": "boolean", "description": "Queue governed agent pilot runs."},
+    {"id": "backup.export", "kind": "boolean", "description": "Export a complete portable project archive."},
+    {"id": "usage.llm_turn.monthly", "kind": "integer", "description": "Monthly completed or reserved LLM-backed operations; -1 means unlimited."},
+    {"id": "usage.export.monthly", "kind": "integer", "description": "Monthly completed or reserved export operations; -1 means unlimited."},
+    {"id": "usage.runtime_publish.monthly", "kind": "integer", "description": "Monthly completed or reserved runtime publication operations; -1 means unlimited."},
+    {"id": "usage.agent_run.monthly", "kind": "integer", "description": "Monthly completed or reserved governed agent runs; -1 means unlimited."}
+  ],
+  "plans": [
+    {
+      "id": "hosted_pilot",
+      "audience": "hosted",
+      "name": "Hosted pilot",
+      "entitlements": {
+        "project.create": true, "project.max_active": -1, "workspace.max_members": -1, "export.spec": true, "export.bpmn": true,
+        "export.n8n": true, "export.agent": true, "code.generate": true, "template.private": true,
+        "interview.import": true, "runtime.publish": true, "agent.execute": true, "backup.export": true,
+        "usage.llm_turn.monthly": -1, "usage.export.monthly": -1,
+        "usage.runtime_publish.monthly": -1, "usage.agent_run.monthly": -1
+      }
+    },
+    {
+      "id": "self_hosted_full",
+      "audience": "self_hosted",
+      "name": "Self-hosted full",
+      "entitlements": {
+        "project.create": true, "project.max_active": -1, "workspace.max_members": -1, "export.spec": true, "export.bpmn": true,
+        "export.n8n": true, "export.agent": true, "code.generate": true, "template.private": true,
+        "interview.import": true, "runtime.publish": true, "agent.execute": true, "backup.export": true,
+        "usage.llm_turn.monthly": -1, "usage.export.monthly": -1,
+        "usage.runtime_publish.monthly": -1, "usage.agent_run.monthly": -1
+      }
+    },
+    {
+      "id": "read_only",
+      "audience": "internal",
+      "name": "Read-only fallback",
+      "entitlements": {
+        "project.create": false, "project.max_active": 0, "workspace.max_members": 1, "export.spec": false, "export.bpmn": false,
+        "export.n8n": false, "export.agent": false, "code.generate": false, "template.private": false,
+        "interview.import": false, "runtime.publish": false, "agent.execute": false, "backup.export": true,
+        "usage.llm_turn.monthly": 0, "usage.export.monthly": 0,
+        "usage.runtime_publish.monthly": 0, "usage.agent_run.monthly": 0
+      }
+    }
+  ]
+}

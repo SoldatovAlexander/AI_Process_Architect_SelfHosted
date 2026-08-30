@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1",
+  "profileId": "fully-local",
+  "revision": 1,
+  "productName": "AI Process Architect",
+  "enabledLocales": ["ru", "en", "es"],
+  "llm": {"allowedProviders": ["openai_compatible"], "userCredentialsRequired": true, "systemFallbackAllowed": false, "customBaseUrlAllowed": true, "localEndpointsAllowed": true},
+  "network": {"egress": "local_only", "allowedHosts": ["localhost", "127.0.0.1", "host.docker.internal", "ollama"]},
+  "features": {"runtimeConnections": true, "codeGeneration": true, "externalDocumentSources": false, "monitoring": true},
+  "administration": {"mode": "self_hosted", "billingEnabled": false, "licenseMode": "consumer"},
+  "deploymentLocked": ["llm", "network", "features.externalDocumentSources", "administration"]
+}

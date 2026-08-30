@@ -1,0 +1,23 @@
+{
+  "batch": "071-300",
+  "compared_against": "20 ready baselines and 50 interview drafts",
+  "method": "normalized English title comparison followed by manual intent review",
+  "summary": {
+    "incoming": 230,
+    "exact_duplicates_skipped": 4,
+    "possible_variants_kept": 4,
+    "product_templates_added": 226
+  },
+  "exact_duplicates": [
+    {"library_number": 74, "incoming_id": "sales_crm.inbound_lead_qualification", "existing_id": "lead-qualification", "decision": "skip"},
+    {"library_number": 144, "incoming_id": "hr_people.interview_scheduling", "existing_id": "catalog-hr-interview-scheduling", "decision": "skip"},
+    {"library_number": 196, "incoming_id": "ecommerce_inventory.abandoned_cart_recovery", "existing_id": "catalog-commerce-abandoned-cart-recovery", "decision": "skip"},
+    {"library_number": 213, "incoming_id": "operations_documents.contract_risk_review", "existing_id": "catalog-documents-contract-risk-review", "decision": "skip"}
+  ],
+  "possible_variants": [
+    {"library_number": 117, "incoming_id": "finance_procurement.purchase_requisition_approval", "existing_id": "purchase-request", "decision": "keep_variant"},
+    {"library_number": 152, "incoming_id": "hr_people.employee_onboarding_plan", "existing_id": "employee-onboarding", "decision": "keep_variant"},
+    {"library_number": 162, "incoming_id": "marketing_content.competitor_content_monitoring", "existing_id": "catalog-marketing-competitor-site-monitoring", "decision": "keep_variant"},
+    {"library_number": 221, "incoming_id": "it_devops_security.access_request_approval", "existing_id": "leave-request", "decision": "keep_variant", "note": "Lexical similarity only; business intent differs."}
+  ]
+}

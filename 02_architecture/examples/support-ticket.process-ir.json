@@ -1,0 +1,292 @@
+{
+  "schemaVersion": "0.2",
+  "process": {
+    "id": "process_support_ticket",
+    "name": "Support Ticket Routing",
+    "description": "Classify an incoming support email and route it to the right support queue.",
+    "domain": "support",
+    "maturity": "draft"
+  },
+  "actors": [
+    {
+      "id": "actor_support_agent",
+      "name": "Support Agent",
+      "type": "human",
+      "responsibilities": [
+        "Resolve assigned support tickets"
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "id": "system_email",
+      "name": "Support Mailbox",
+      "type": "email",
+      "integrationStatus": "api_available",
+      "notes": "Incoming customer messages arrive by email."
+    },
+    {
+      "id": "system_helpdesk",
+      "name": "Helpdesk",
+      "type": "ticketing",
+      "integrationStatus": "unknown",
+      "notes": "Exact helpdesk system is not defined yet."
+    }
+  ],
+  "dataObjects": [
+    {
+      "id": "data_ticket",
+      "name": "Support Ticket",
+      "fields": [
+        {
+          "name": "subject",
+          "type": "string",
+          "required": true,
+          "source": "email"
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "required": true,
+          "source": "email"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "required": false,
+          "source": "ai_classification"
+        }
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "id": "step_start",
+      "type": "start",
+      "title": "Support email received",
+      "description": "A customer sends a support request.",
+      "actorId": null,
+      "systemId": "system_email",
+      "inputs": [],
+      "outputs": [
+        "data_ticket"
+      ],
+      "operation": {
+        "kind": "trigger",
+        "name": "email_received",
+        "parameters": {}
+      },
+      "missingFields": [],
+      "automationHint": {
+        "target": "n8n",
+        "nodeType": "n8n-nodes-base.emailReadImap"
+      },
+      "execution": {
+        "performedBy": "system",
+        "autonomy": "manual",
+        "approvalRequired": false,
+        "restrictions": []
+      }
+    },
+    {
+      "id": "step_classify",
+      "type": "system_task",
+      "title": "Classify ticket",
+      "description": "Classify the ticket category and urgency.",
+      "actorId": null,
+      "systemId": null,
+      "inputs": [
+        "data_ticket"
+      ],
+      "outputs": [
+        "data_ticket"
+      ],
+      "operation": {
+        "kind": "ai_task",
+        "name": "ticket_classification",
+        "parameters": {}
+      },
+      "missingFields": [
+        "category_list"
+      ],
+      "automationHint": {
+        "target": "n8n",
+        "nodeType": "n8n-nodes-base.openAi"
+      },
+      "execution": {
+        "performedBy": "ai",
+        "autonomy": "assist",
+        "approvalRequired": true,
+        "restrictions": []
+      }
+    },
+    {
+      "id": "step_create_ticket",
+      "type": "system_task",
+      "title": "Create helpdesk ticket",
+      "description": "Create a ticket in the selected helpdesk system.",
+      "actorId": null,
+      "systemId": "system_helpdesk",
+      "inputs": [
+        "data_ticket"
+      ],
+      "outputs": [
+        "data_ticket"
+      ],
+      "operation": {
+        "kind": "api_call",
+        "name": "create_ticket",
+        "parameters": {}
+      },
+      "missingFields": [
+        "helpdesk_system",
+        "queue_mapping"
+      ],
+      "automationHint": {
+        "target": "n8n",
+        "nodeType": "n8n-nodes-base.httpRequest"
+      },
+      "execution": {
+        "performedBy": "system",
+        "autonomy": "autonomous",
+        "approvalRequired": false,
+        "restrictions": []
+      }
+    },
+    {
+      "id": "step_end",
+      "type": "end",
+      "title": "Ticket routed",
+      "description": "Ticket was created and routed.",
+      "actorId": null,
+      "systemId": null,
+      "inputs": [],
+      "outputs": [],
+      "operation": {
+        "kind": "end",
+        "name": "complete",
+        "parameters": {}
+      },
+      "missingFields": [],
+      "automationHint": null,
+      "execution": {
+        "performedBy": "system",
+        "autonomy": "manual",
+        "approvalRequired": false,
+        "restrictions": []
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_start_classify",
+      "from": "step_start",
+      "to": "step_classify",
+      "condition": null,
+      "ruleIds": []
+    },
+    {
+      "id": "edge_classify_create",
+      "from": "step_classify",
+      "to": "step_create_ticket",
+      "condition": null,
+      "ruleIds": []
+    },
+    {
+      "id": "edge_create_end",
+      "from": "step_create_ticket",
+      "to": "step_end",
+      "condition": null,
+      "ruleIds": []
+    }
+  ],
+  "exceptions": [],
+  "openQuestions": [
+    {
+      "id": "question_categories",
+      "priority": "high",
+      "target": {
+        "entity": "step",
+        "id": "step_classify"
+      },
+      "question": "Which ticket categories and queues should be used?",
+      "blocksAutomationReady": true
+    },
+    {
+      "id": "question_helpdesk",
+      "priority": "high",
+      "target": {
+        "entity": "system",
+        "id": "system_helpdesk"
+      },
+      "question": "Which helpdesk system should receive tickets?",
+      "blocksAutomationReady": true
+    }
+  ],
+  "readiness": {
+    "overall": 48,
+    "categories": {
+      "structure": {
+        "score": 80,
+        "status": "warning",
+        "notes": [
+          "Main path exists, but category branches are not modeled."
+        ]
+      },
+      "actors": {
+        "score": 70,
+        "status": "warning",
+        "notes": [
+          "Support agent exists, but queue owners are not defined."
+        ]
+      },
+      "systems": {
+        "score": 40,
+        "status": "blocked",
+        "notes": [
+          "Helpdesk system is unknown."
+        ]
+      },
+      "data": {
+        "score": 60,
+        "status": "warning",
+        "notes": [
+          "Category list and queue mapping are missing."
+        ]
+      },
+      "branches": {
+        "score": 30,
+        "status": "blocked",
+        "notes": [
+          "No routing branches exist yet."
+        ]
+      },
+      "exceptions": {
+        "score": 0,
+        "status": "blocked",
+        "notes": [
+          "No exception handling is defined."
+        ]
+      },
+      "automation": {
+        "score": 25,
+        "status": "blocked",
+        "notes": [
+          "Helpdesk API details and queue mapping are missing."
+        ]
+      }
+    }
+  },
+  "passport": {
+    "goal": "Classify an incoming support email and route it to the right support queue.",
+    "ownerActorId": "actor_support_agent",
+    "startsWhen": "Support email received",
+    "endsWhen": "Ticket routed",
+    "inScope": [],
+    "outOfScope": [],
+    "successMetrics": []
+  },
+  "states": [],
+  "stateTransitions": [],
+  "businessRules": []
+}

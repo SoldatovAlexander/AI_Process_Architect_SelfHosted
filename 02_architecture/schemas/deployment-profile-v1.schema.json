@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-process-architect.local/schemas/deployment-profile-v1.schema.json",
+  "title": "AI Process Architect deployment profile v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "profileId", "revision", "productName", "enabledLocales", "llm", "network", "features", "deploymentLocked"],
+  "properties": {
+    "schemaVersion": {"const": "1"},
+    "profileId": {"type": "string", "pattern": "^[a-z][a-z0-9-]{1,63}$"},
+    "revision": {"type": "integer", "minimum": 1},
+    "productName": {"type": "string", "minLength": 1, "maxLength": 120},
+    "enabledLocales": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Za-z]{2,3}([_-][A-Za-z0-9]{2,8})*$"}},
+    "llm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowedProviders", "userCredentialsRequired", "systemFallbackAllowed", "customBaseUrlAllowed", "localEndpointsAllowed"],
+      "properties": {
+        "allowedProviders": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["deepseek", "openai", "openai_compatible"]}},
+        "userCredentialsRequired": {"type": "boolean"},
+        "systemFallbackAllowed": {"type": "boolean"},
+        "customBaseUrlAllowed": {"type": "boolean"},
+        "localEndpointsAllowed": {"type": "boolean"}
+      }
+    },
+    "network": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["egress", "allowedHosts"],
+      "properties": {
+        "egress": {"enum": ["unrestricted", "allowlist", "local_only"]},
+        "allowedHosts": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 255}}
+      }
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runtimeConnections", "codeGeneration", "externalDocumentSources", "monitoring"],
+      "properties": {
+        "runtimeConnections": {"type": "boolean"},
+        "codeGeneration": {"type": "boolean"},
+        "externalDocumentSources": {"type": "boolean"},
+        "monitoring": {"type": "boolean"}
+      }
+    },
+    "administration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "billingEnabled", "licenseMode"],
+      "properties": {
+        "mode": {"enum": ["hosted", "self_hosted"]},
+        "billingEnabled": {"type": "boolean"},
+        "licenseMode": {"enum": ["issuer", "consumer", "none"]}
+      }
+    },
+    "deploymentLocked": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][A-Za-z0-9.]*$"}}
+  }
+}

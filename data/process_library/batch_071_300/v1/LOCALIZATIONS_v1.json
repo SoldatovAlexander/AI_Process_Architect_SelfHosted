@@ -1,0 +1,932 @@
+{
+  "schema_version": "1.0",
+  "batch": "071-300",
+  "source_language": "en",
+  "locales": [
+    "ru",
+    "es"
+  ],
+  "policy": "Generated translation reviewed structurally; terminology requires editorial review before release.",
+  "titles": {
+    "sales_crm.lead_capture_from_website_and_messengers": {
+      "ru": "Захват лидов с веб-сайта и мессенджеров",
+      "es": "Captura de leads desde el sitio web y mensajería"
+    },
+    "sales_crm.lead_identity_resolution_and_deduplication": {
+      "ru": "Установление идентичности лидов и дедупликация",
+      "es": "Resolución de identidad de leads y deduplicación"
+    },
+    "sales_crm.lead_enrichment_from_public_sources": {
+      "ru": "Обогащение лидов из публичных источников",
+      "es": "Enriquecimiento de leads desde fuentes públicas"
+    },
+    "sales_crm.inbound_lead_qualification": {
+      "ru": "Квалификация входящих лидов",
+      "es": "Calificación de leads entrantes"
+    },
+    "sales_crm.lead_scoring_and_prioritization": {
+      "ru": "Оценка лидов и приоритизация",
+      "es": "Puntuación y priorización de leads"
+    },
+    "sales_crm.territory_based_lead_routing": {
+      "ru": "Маршрутизация лидов по территориям",
+      "es": "Enrutamiento de leads por territorio"
+    },
+    "sales_crm.product_based_lead_routing": {
+      "ru": "Маршрутизация лидов по продуктам",
+      "es": "Enrutamiento de leads por producto"
+    },
+    "sales_crm.round_robin_lead_assignment": {
+      "ru": "Назначение лидов по круговой схеме",
+      "es": "Asignación de leads round-robin"
+    },
+    "sales_crm.vip_lead_escalation": {
+      "ru": "Эскалация VIP-лидов",
+      "es": "Escalación de leads VIP"
+    },
+    "sales_crm.missed_lead_recovery": {
+      "ru": "Восстановление пропущенных лидов",
+      "es": "Recuperación de leads perdidos"
+    },
+    "sales_crm.first_response_sla_monitoring": {
+      "ru": "Мониторинг SLA первого ответа",
+      "es": "Monitoreo de SLA de primera respuesta"
+    },
+    "sales_crm.personalized_first_response": {
+      "ru": "Персонализированный первый ответ",
+      "es": "Primera respuesta personalizada"
+    },
+    "sales_crm.multi_step_outbound_sequence": {
+      "ru": "Многоэтапная исходящая последовательность",
+      "es": "Secuencia de salida de múltiples pasos"
+    },
+    "sales_crm.follow_up_after_no_response": {
+      "ru": "Повторный контакт после отсутствия ответа",
+      "es": "Seguimiento después de no respuesta"
+    },
+    "sales_crm.meeting_booking_from_qualified_lead": {
+      "ru": "Бронирование встречи по квалифицированному лиду",
+      "es": "Reserva de reunión a partir de lead calificado"
+    },
+    "sales_crm.meeting_reminder_and_rescheduling": {
+      "ru": "Напоминание о встрече и перенос",
+      "es": "Recordatorio de reunión y reprogramación"
+    },
+    "sales_crm.post_meeting_summary_and_crm_update": {
+      "ru": "Итоги после встречи и обновление CRM",
+      "es": "Resumen posterior a la reunión y actualización en CRM"
+    },
+    "sales_crm.opportunity_stage_progression": {
+      "ru": "Продвижение по стадиям сделки",
+      "es": "Progresión de etapas de oportunidad"
+    },
+    "sales_crm.stalled_opportunity_detection": {
+      "ru": "Выявление застопорившихся сделок",
+      "es": "Detección de oportunidades estancadas"
+    },
+    "sales_crm.quote_request_preparation": {
+      "ru": "Подготовка запроса котировки",
+      "es": "Preparación de solicitud de cotización"
+    },
+    "sales_crm.commercial_proposal_generation": {
+      "ru": "Формирование коммерческого предложения",
+      "es": "Generación de propuesta comercial"
+    },
+    "sales_crm.commercial_proposal_approval": {
+      "ru": "Согласование коммерческого предложения",
+      "es": "Aprobación de propuesta comercial"
+    },
+    "sales_crm.proposal_delivery_and_tracking": {
+      "ru": "Доставка и отслеживание предложения",
+      "es": "Entrega y seguimiento de propuesta"
+    },
+    "sales_crm.contract_handoff_after_win": {
+      "ru": "Передача договора после победы",
+      "es": "Traspaso de contrato después de ganar"
+    },
+    "finance_procurement.incoming_invoice_intake": {
+      "ru": "Прием входящих счетов",
+      "es": "Recepción de facturas entrantes"
+    },
+    "finance_procurement.invoice_ocr_and_field_extraction": {
+      "ru": "OCR счетов и извлечение полей",
+      "es": "OCR de facturas y extracción de campos"
+    },
+    "finance_procurement.invoice_duplicate_detection": {
+      "ru": "Обнаружение дубликатов счетов",
+      "es": "Detección de facturas duplicadas"
+    },
+    "finance_procurement.supplier_master_validation": {
+      "ru": "Валидация основных данных поставщиков",
+      "es": "Validación de datos maestros de proveedores"
+    },
+    "finance_procurement.three_way_invoice_matching": {
+      "ru": "Трехсторонняя сверка счетов",
+      "es": "Conciliación de facturas de tres vías"
+    },
+    "finance_procurement.invoice_approval_routing": {
+      "ru": "Маршрутизация утверждения счетов",
+      "es": "Enrutamiento de aprobación de facturas"
+    },
+    "finance_procurement.invoice_exception_resolution": {
+      "ru": "Урегулирование исключений по счетам",
+      "es": "Resolución de excepciones de facturas"
+    },
+    "finance_procurement.approved_invoice_posting": {
+      "ru": "Проводка утвержденных счетов",
+      "es": "Contabilización de facturas aprobadas"
+    },
+    "finance_procurement.payment_calendar_preparation": {
+      "ru": "Подготовка календаря платежей",
+      "es": "Preparación del calendario de pagos"
+    },
+    "finance_procurement.payment_approval": {
+      "ru": "Утверждение платежа",
+      "es": "Aprobación de pago"
+    },
+    "finance_procurement.payment_status_reconciliation": {
+      "ru": "Сверка статуса платежей",
+      "es": "Conciliación del estado de pagos"
+    },
+    "finance_procurement.overdue_receivables_detection": {
+      "ru": "Выявление просроченной дебиторской задолженности",
+      "es": "Detección de cuentas por cobrar vencidas"
+    },
+    "finance_procurement.customer_payment_reminder": {
+      "ru": "Напоминание клиенту об оплате",
+      "es": "Recordatorio de pago al cliente"
+    },
+    "finance_procurement.collections_escalation": {
+      "ru": "Эскалация по взысканию задолженности",
+      "es": "Escalación de cobranzas"
+    },
+    "finance_procurement.bank_statement_reconciliation": {
+      "ru": "Сверка банковской выписки",
+      "es": "Conciliación de extractos bancarios"
+    },
+    "finance_procurement.expense_report_intake": {
+      "ru": "Приём отчётов о расходах",
+      "es": "Recepción de informes de gastos"
+    },
+    "finance_procurement.expense_policy_validation": {
+      "ru": "Проверка соблюдения политики расходов",
+      "es": "Validación de la política de gastos"
+    },
+    "finance_procurement.expense_approval_and_reimbursement": {
+      "ru": "Согласование и возмещение расходов",
+      "es": "Aprobación y reembolso de gastos"
+    },
+    "finance_procurement.budget_request_intake": {
+      "ru": "Приём бюджетных заявок",
+      "es": "Recepción de solicitudes de presupuesto"
+    },
+    "finance_procurement.budget_variance_monitoring": {
+      "ru": "Мониторинг отклонений от бюджета",
+      "es": "Monitoreo de variaciones presupuestarias"
+    },
+    "finance_procurement.cash_flow_forecast_refresh": {
+      "ru": "Обновление прогноза денежных потоков",
+      "es": "Actualización del pronóstico de flujo de caja"
+    },
+    "finance_procurement.purchase_requisition_intake": {
+      "ru": "Приём заявок на закупку",
+      "es": "Recepción de solicitudes de compra"
+    },
+    "finance_procurement.purchase_requisition_approval": {
+      "ru": "Согласование заявок на закупку",
+      "es": "Aprobación de solicitudes de compra"
+    },
+    "finance_procurement.supplier_discovery": {
+      "ru": "Поиск поставщиков",
+      "es": "Búsqueda de proveedores"
+    },
+    "support_cx.omnichannel_ticket_intake": {
+      "ru": "Приём заявок по всем каналам",
+      "es": "Recepción de tickets omnicanal"
+    },
+    "support_cx.customer_identity_and_context_enrichment": {
+      "ru": "Обогащение данных о клиенте и контексте",
+      "es": "Enriquecimiento de identidad y contexto del cliente"
+    },
+    "support_cx.ticket_deduplication": {
+      "ru": "Дедупликация заявок",
+      "es": "Deduplicación de tickets"
+    },
+    "support_cx.ticket_classification": {
+      "ru": "Классификация заявок",
+      "es": "Clasificación de tickets"
+    },
+    "support_cx.sentiment_and_urgency_detection": {
+      "ru": "Определение тональности и срочности",
+      "es": "Detección de sentimiento y urgencia"
+    },
+    "support_cx.automatic_knowledge_base_answer": {
+      "ru": "Автоматический ответ из базы знаний",
+      "es": "Respuesta automática de la base de conocimientos"
+    },
+    "support_cx.rag_answer_confidence_check": {
+      "ru": "Проверка уверенности ответа RAG",
+      "es": "Verificación de confianza de respuesta RAG"
+    },
+    "support_cx.human_fallback_for_uncertain_answer": {
+      "ru": "Перевод на оператора при неуверенном ответе",
+      "es": "Derivación a humano para respuesta incierta"
+    },
+    "support_cx.skill_based_ticket_routing": {
+      "ru": "Маршрутизация заявок по навыкам",
+      "es": "Enrutamiento de tickets por habilidades"
+    },
+    "support_cx.priority_customer_routing": {
+      "ru": "Маршрутизация приоритетных клиентов",
+      "es": "Enrutamiento de clientes prioritarios"
+    },
+    "support_cx.support_sla_monitoring": {
+      "ru": "Мониторинг SLA поддержки",
+      "es": "Monitoreo del SLA de soporte"
+    },
+    "support_cx.sla_breach_escalation": {
+      "ru": "Эскалация при нарушении SLA",
+      "es": "Escalación por incumplimiento de SLA"
+    },
+    "support_cx.incident_swarm_activation": {
+      "ru": "Активация совместного разбора инцидента",
+      "es": "Activación de swarm de incidentes"
+    },
+    "support_cx.customer_status_notification": {
+      "ru": "Уведомление клиента о статусе",
+      "es": "Notificación de estado al cliente"
+    },
+    "support_cx.resolution_approval_for_sensitive_cases": {
+      "ru": "Согласование решения по чувствительным случаям",
+      "es": "Aprobación de resolución para casos sensibles"
+    },
+    "support_cx.ticket_closure_validation": {
+      "ru": "Проверка закрытия заявки",
+      "es": "Validación de cierre de ticket"
+    },
+    "support_cx.customer_satisfaction_survey": {
+      "ru": "Опрос удовлетворенности клиента",
+      "es": "Encuesta de satisfacción del cliente"
+    },
+    "support_cx.negative_feedback_recovery": {
+      "ru": "Работа с негативными отзывами",
+      "es": "Recuperación de comentarios negativos"
+    },
+    "support_cx.complaint_registration": {
+      "ru": "Регистрация жалобы",
+      "es": "Registro de quejas"
+    },
+    "support_cx.complaint_investigation_coordination": {
+      "ru": "Координация расследования жалобы",
+      "es": "Coordinación de la investigación de quejas"
+    },
+    "support_cx.refund_request_triage": {
+      "ru": "Триаж запросов на возврат средств",
+      "es": "Triaje de solicitudes de reembolso"
+    },
+    "hr_people.candidate_application_intake": {
+      "ru": "Приём заявок от кандидатов",
+      "es": "Recepción de solicitudes de candidatos"
+    },
+    "hr_people.resume_parsing_and_normalization": {
+      "ru": "Парсинг и нормализация резюме",
+      "es": "Parseo y normalización de currículums"
+    },
+    "hr_people.candidate_duplicate_detection": {
+      "ru": "Обнаружение дубликатов кандидатов",
+      "es": "Detección de candidatos duplicados"
+    },
+    "hr_people.candidate_screening": {
+      "ru": "Скрининг кандидатов",
+      "es": "Filtrado de candidatos"
+    },
+    "hr_people.interview_scheduling": {
+      "ru": "Планирование собеседований",
+      "es": "Programación de entrevistas"
+    },
+    "hr_people.interview_reminder": {
+      "ru": "Напоминание о собеседовании",
+      "es": "Recordatorio de entrevista"
+    },
+    "hr_people.interview_transcription_and_summary": {
+      "ru": "Расшифровка и резюмирование собеседования",
+      "es": "Transcripción y resumen de la entrevista"
+    },
+    "hr_people.candidate_scorecard_consolidation": {
+      "ru": "Консолидация скоринговых карт кандидатов",
+      "es": "Consolidación de fichas de puntuación del candidato"
+    },
+    "hr_people.offer_preparation": {
+      "ru": "Подготовка оффера",
+      "es": "Preparación de la oferta"
+    },
+    "hr_people.offer_approval": {
+      "ru": "Согласование оффера",
+      "es": "Aprobación de la oferta"
+    },
+    "hr_people.offer_delivery_and_acceptance": {
+      "ru": "Предоставление оффера и его принятие",
+      "es": "Entrega y aceptación de la oferta"
+    },
+    "hr_people.preboarding_document_collection": {
+      "ru": "Сбор документов для предварительного оформления",
+      "es": "Recopilación de documentos de preincorporación"
+    },
+    "hr_people.employee_onboarding_plan": {
+      "ru": "План онбординга сотрудника",
+      "es": "Plan de incorporación del empleado"
+    },
+    "hr_people.account_and_access_provisioning": {
+      "ru": "Предоставление учетных записей и доступа",
+      "es": "Aprovisionamiento de cuentas y accesos"
+    },
+    "hr_people.mandatory_training_assignment": {
+      "ru": "Назначение обязательного обучения",
+      "es": "Asignación de formación obligatoria"
+    },
+    "hr_people.probation_milestone_tracking": {
+      "ru": "Отслеживание этапов испытательного срока",
+      "es": "Seguimiento de hitos del período de prueba"
+    },
+    "hr_people.employee_pulse_survey": {
+      "ru": "Пульс-опрос сотрудников",
+      "es": "Encuesta de pulso de los empleados"
+    },
+    "hr_people.leave_request_processing": {
+      "ru": "Обработка заявок на отпуск",
+      "es": "Procesamiento de solicitudes de vacaciones"
+    },
+    "hr_people.business_trip_request_processing": {
+      "ru": "Обработка заявок на командировку",
+      "es": "Procesamiento de solicitudes de viajes de negocios"
+    },
+    "hr_people.employee_document_request": {
+      "ru": "Запрос документов сотрудника",
+      "es": "Solicitud de documentos del empleado"
+    },
+    "marketing_content.campaign_brief_intake": {
+      "ru": "Прием брифов кампании",
+      "es": "Recepción de briefings de campaña"
+    },
+    "marketing_content.audience_research": {
+      "ru": "Исследование аудитории",
+      "es": "Investigación de audiencia"
+    },
+    "marketing_content.competitor_content_monitoring": {
+      "ru": "Мониторинг контента конкурентов",
+      "es": "Monitoreo de contenido de la competencia"
+    },
+    "marketing_content.keyword_cluster_research": {
+      "ru": "Исследование кластеров ключевых слов",
+      "es": "Investigación de clústeres de palabras clave"
+    },
+    "marketing_content.editorial_calendar_planning": {
+      "ru": "Планирование редакционного календаря",
+      "es": "Planificación del calendario editorial"
+    },
+    "marketing_content.content_idea_backlog": {
+      "ru": "Бэклог идей для контента",
+      "es": "Backlog de ideas de contenido"
+    },
+    "marketing_content.long_form_article_drafting": {
+      "ru": "Написание длинных статей",
+      "es": "Redacción de artículos extensos"
+    },
+    "marketing_content.seo_content_optimization": {
+      "ru": "SEO-оптимизация контента",
+      "es": "Optimización de contenido SEO"
+    },
+    "marketing_content.brand_compliance_review": {
+      "ru": "Проверка соответствия бренду",
+      "es": "Revisión de cumplimiento de marca"
+    },
+    "marketing_content.legal_review_of_campaign_content": {
+      "ru": "Юридическая проверка контента кампании",
+      "es": "Revisión legal del contenido de la campaña"
+    },
+    "marketing_content.human_approval_before_publication": {
+      "ru": "Ручное утверждение перед публикацией",
+      "es": "Aprobación humana antes de la publicación"
+    },
+    "marketing_content.multi_channel_content_adaptation": {
+      "ru": "Адаптация контента для нескольких каналов",
+      "es": "Adaptación de contenido multicanal"
+    },
+    "marketing_content.social_post_scheduling": {
+      "ru": "Планирование публикаций в соцсетях",
+      "es": "Programación de publicaciones en redes sociales"
+    },
+    "marketing_content.image_creative_generation": {
+      "ru": "Генерация креативных изображений",
+      "es": "Generación de creatividades de imagen"
+    },
+    "marketing_content.video_script_generation": {
+      "ru": "Генерация сценария видео",
+      "es": "Generación de guiones de video"
+    },
+    "marketing_content.email_newsletter_assembly": {
+      "ru": "Сборка email-рассылки",
+      "es": "Ensamblaje del boletín por correo electrónico"
+    },
+    "marketing_content.email_subject_line_testing": {
+      "ru": "Тестирование темы email-писем",
+      "es": "Pruebas de asunto de correo"
+    },
+    "marketing_content.campaign_launch_checklist": {
+      "ru": "Контрольный список запуска кампании",
+      "es": "Lista de verificación de lanzamiento de campaña"
+    },
+    "marketing_content.utm_governance": {
+      "ru": "Управление UTM-метками",
+      "es": "Gestión de UTM"
+    },
+    "marketing_content.paid_ad_anomaly_monitoring": {
+      "ru": "Мониторинг аномалий в платной рекламе",
+      "es": "Monitoreo de anomalías en anuncios pagados"
+    },
+    "ecommerce_inventory.order_intake_and_validation": {
+      "ru": "Приём и проверка заказов",
+      "es": "Recepción y validación de pedidos"
+    },
+    "ecommerce_inventory.payment_confirmation_handling": {
+      "ru": "Обработка подтверждения оплаты",
+      "es": "Gestión de confirmación de pago"
+    },
+    "ecommerce_inventory.fraud_risk_review_handoff": {
+      "ru": "Передача на рассмотрение риска мошенничества",
+      "es": "Traspaso de revisión de riesgo de fraude"
+    },
+    "ecommerce_inventory.inventory_availability_check": {
+      "ru": "Проверка наличия товара на складе",
+      "es": "Verificación de disponibilidad de inventario"
+    },
+    "ecommerce_inventory.order_allocation_across_warehouses": {
+      "ru": "Распределение заказов по складам",
+      "es": "Asignación de pedidos entre almacenes"
+    },
+    "ecommerce_inventory.backorder_management": {
+      "ru": "Управление отложенными заказами",
+      "es": "Gestión de pedidos pendientes"
+    },
+    "ecommerce_inventory.picking_task_creation": {
+      "ru": "Создание задач на комплектацию",
+      "es": "Creación de tareas de picking"
+    },
+    "ecommerce_inventory.packing_completion_update": {
+      "ru": "Обновление о завершении упаковки",
+      "es": "Actualización de finalización de empaque"
+    },
+    "ecommerce_inventory.shipment_label_creation": {
+      "ru": "Создание ярлыка отправления",
+      "es": "Creación de etiqueta de envío"
+    },
+    "ecommerce_inventory.shipment_tracking_notification": {
+      "ru": "Уведомление об отслеживании отправления",
+      "es": "Notificación de seguimiento de envío"
+    },
+    "ecommerce_inventory.delivery_exception_escalation": {
+      "ru": "Эскалация исключений при доставке",
+      "es": "Escalamiento de excepciones de entrega"
+    },
+    "ecommerce_inventory.order_cancellation_processing": {
+      "ru": "Обработка отмены заказа",
+      "es": "Procesamiento de cancelación de pedido"
+    },
+    "ecommerce_inventory.return_request_intake": {
+      "ru": "Приём запроса на возврат",
+      "es": "Recepción de solicitud de devolución"
+    },
+    "ecommerce_inventory.return_eligibility_validation": {
+      "ru": "Проверка права на возврат",
+      "es": "Validación de elegibilidad de devolución"
+    },
+    "ecommerce_inventory.return_logistics_coordination": {
+      "ru": "Координация логистики возврата",
+      "es": "Coordinación de logística de devolución"
+    },
+    "ecommerce_inventory.refund_after_return_validation": {
+      "ru": "Возврат денег после проверки возврата товара",
+      "es": "Reembolso después de validación de devolución"
+    },
+    "ecommerce_inventory.abandoned_cart_recovery": {
+      "ru": "Восстановление брошенных корзин",
+      "es": "Recuperación de carritos abandonados"
+    },
+    "ecommerce_inventory.low_stock_alert": {
+      "ru": "Оповещение о низком остатке",
+      "es": "Alerta de stock bajo"
+    },
+    "ecommerce_inventory.reorder_point_monitoring": {
+      "ru": "Мониторинг точки перезаказа",
+      "es": "Monitoreo del punto de reorden"
+    },
+    "ecommerce_inventory.purchase_replenishment_proposal": {
+      "ru": "Предложение по пополнению запасов",
+      "es": "Propuesta de reposición de compra"
+    },
+    "operations_documents.incoming_document_registration": {
+      "ru": "Регистрация входящих документов",
+      "es": "Registro de documentos entrantes"
+    },
+    "operations_documents.document_classification": {
+      "ru": "Классификация документов",
+      "es": "Clasificación de documentos"
+    },
+    "operations_documents.document_metadata_extraction": {
+      "ru": "Извлечение метаданных документов",
+      "es": "Extracción de metadatos de documentos"
+    },
+    "operations_documents.document_version_control": {
+      "ru": "Управление версиями документов",
+      "es": "Control de versiones de documentos"
+    },
+    "operations_documents.document_review_routing": {
+      "ru": "Маршрутизация рецензирования документов",
+      "es": "Enrutamiento de revisión de documentos"
+    },
+    "operations_documents.multi_level_document_approval": {
+      "ru": "Многоуровневое согласование документов",
+      "es": "Aprobación multinivel de documentos"
+    },
+    "operations_documents.electronic_signature_coordination": {
+      "ru": "Координация электронной подписи",
+      "es": "Coordinación de firma electrónica"
+    },
+    "operations_documents.document_publication": {
+      "ru": "Публикация документа",
+      "es": "Publicación de documentos"
+    },
+    "operations_documents.document_retention_scheduling": {
+      "ru": "Планирование сроков хранения документов",
+      "es": "Programación de retención de documentos"
+    },
+    "operations_documents.document_archival": {
+      "ru": "Архивирование документов",
+      "es": "Archivado de documentos"
+    },
+    "operations_documents.contract_request_intake": {
+      "ru": "Приём запроса на договор",
+      "es": "Recepción de solicitud de contrato"
+    },
+    "operations_documents.contract_template_selection": {
+      "ru": "Выбор шаблона договора",
+      "es": "Selección de plantilla de contrato"
+    },
+    "operations_documents.contract_clause_extraction": {
+      "ru": "Извлечение пунктов договора",
+      "es": "Extracción de cláusulas del contrato"
+    },
+    "operations_documents.contract_risk_review": {
+      "ru": "Проверка рисков по договору",
+      "es": "Revisión de riesgos del contrato"
+    },
+    "operations_documents.contract_negotiation_task_tracking": {
+      "ru": "Отслеживание задач переговоров по договору",
+      "es": "Seguimiento de tareas de negociación del contrato"
+    },
+    "operations_documents.contract_approval": {
+      "ru": "Утверждение договора",
+      "es": "Aprobación de contrato"
+    },
+    "operations_documents.contract_signature_and_storage": {
+      "ru": "Подписание и хранение договора",
+      "es": "Firma y almacenamiento del contrato"
+    },
+    "operations_documents.contract_obligation_monitoring": {
+      "ru": "Мониторинг обязательств по договору",
+      "es": "Monitoreo de obligaciones del contrato"
+    },
+    "operations_documents.contract_renewal_notice": {
+      "ru": "Уведомление о продлении договора",
+      "es": "Aviso de renovación de contrato"
+    },
+    "operations_documents.meeting_agenda_preparation": {
+      "ru": "Подготовка повестки собрания",
+      "es": "Preparación de la agenda de la reunión"
+    },
+    "it_devops_security.it_service_request_intake": {
+      "ru": "Приём заявок на IT-услуги",
+      "es": "Recepción de solicitudes de servicios de IT"
+    },
+    "it_devops_security.access_request_approval": {
+      "ru": "Утверждение запроса на доступ",
+      "es": "Aprobación de solicitud de acceso"
+    },
+    "it_devops_security.privileged_access_approval": {
+      "ru": "Утверждение привилегированного доступа",
+      "es": "Aprobación de acceso privilegiado"
+    },
+    "it_devops_security.user_account_provisioning": {
+      "ru": "Предоставление учётной записи пользователя",
+      "es": "Aprovisionamiento de cuentas de usuario"
+    },
+    "it_devops_security.user_access_recertification": {
+      "ru": "Переаттестация доступа пользователей",
+      "es": "Recertificación de accesos de usuario"
+    },
+    "it_devops_security.password_reset_orchestration": {
+      "ru": "Оркестрация сброса пароля",
+      "es": "Orquestación de restablecimiento de contraseña"
+    },
+    "it_devops_security.software_license_request": {
+      "ru": "Запрос на лицензию на ПО",
+      "es": "Solicitud de licencia de software"
+    },
+    "it_devops_security.device_provisioning": {
+      "ru": "Предоставление устройства",
+      "es": "Aprovisionamiento de dispositivos"
+    },
+    "it_devops_security.device_return_tracking": {
+      "ru": "Отслеживание возврата устройств",
+      "es": "Seguimiento de devolución de dispositivos"
+    },
+    "it_devops_security.security_alert_enrichment": {
+      "ru": "Обогащение алертов безопасности",
+      "es": "Enriquecimiento de alertas de seguridad"
+    },
+    "it_devops_security.phishing_report_triage": {
+      "ru": "Разбор сообщений о фишинге",
+      "es": "Triaje de informes de phishing"
+    },
+    "it_devops_security.vulnerability_intake_and_prioritization": {
+      "ru": "Приём и приоритизация уязвимостей",
+      "es": "Recepción y priorización de vulnerabilidades"
+    },
+    "it_devops_security.patch_deployment_approval": {
+      "ru": "Утверждение развёртывания патчей",
+      "es": "Aprobación de implementación de parches"
+    },
+    "it_devops_security.backup_job_monitoring": {
+      "ru": "Мониторинг задач резервного копирования",
+      "es": "Monitoreo de trabajos de respaldo"
+    },
+    "it_devops_security.backup_restore_test_coordination": {
+      "ru": "Координация тестирования восстановления из резервной копии",
+      "es": "Coordinación de pruebas de restauración de respaldo"
+    },
+    "it_devops_security.service_health_monitoring": {
+      "ru": "Мониторинг работоспособности сервисов",
+      "es": "Monitoreo de la salud del servicio"
+    },
+    "it_devops_security.incident_detection_and_paging": {
+      "ru": "Обнаружение инцидентов и оповещение",
+      "es": "Detección de incidentes y notificación"
+    },
+    "it_devops_security.incident_severity_classification": {
+      "ru": "Классификация серьёзности инцидентов",
+      "es": "Clasificación de la gravedad de los incidentes"
+    },
+    "it_devops_security.incident_response_coordination": {
+      "ru": "Координация реагирования на инциденты",
+      "es": "Coordinación de la respuesta a incidentes"
+    },
+    "it_devops_security.post_incident_review": {
+      "ru": "Разбор после инцидента",
+      "es": "Revisión posterior al incidente"
+    },
+    "it_devops_security.change_request_intake": {
+      "ru": "Приём запросов на изменения",
+      "es": "Recepción de solicitudes de cambio"
+    },
+    "it_devops_security.change_risk_assessment": {
+      "ru": "Оценка рисков изменений",
+      "es": "Evaluación de riesgos del cambio"
+    },
+    "analytics_compliance.data_request_intake": {
+      "ru": "Приём запросов на данные",
+      "es": "Recepción de solicitudes de datos"
+    },
+    "analytics_compliance.data_quality_anomaly_detection": {
+      "ru": "Обнаружение аномалий качества данных",
+      "es": "Detección de anomalías en la calidad de los datos"
+    },
+    "analytics_compliance.data_source_freshness_monitoring": {
+      "ru": "Мониторинг актуальности источников данных",
+      "es": "Monitoreo de la actualidad de las fuentes de datos"
+    },
+    "analytics_compliance.kpi_calculation_and_publication": {
+      "ru": "Расчёт и публикация KPI",
+      "es": "Cálculo y publicación de KPI"
+    },
+    "analytics_compliance.executive_dashboard_refresh": {
+      "ru": "Обновление дашборда руководителя",
+      "es": "Actualización del panel ejecutivo"
+    },
+    "analytics_compliance.scheduled_management_reporting": {
+      "ru": "Плановая управленческая отчетность",
+      "es": "Informes de gestión programados"
+    },
+    "analytics_compliance.ad_hoc_report_generation": {
+      "ru": "Формирование разовых отчетов",
+      "es": "Generación de informes ad hoc"
+    },
+    "analytics_compliance.forecast_refresh_and_review": {
+      "ru": "Обновление и анализ прогноза",
+      "es": "Actualización y revisión del pronóstico"
+    },
+    "analytics_compliance.customer_churn_risk_detection": {
+      "ru": "Выявление риска оттока клиентов",
+      "es": "Detección del riesgo de pérdida de clientes"
+    },
+    "analytics_compliance.demand_anomaly_detection": {
+      "ru": "Обнаружение аномалий спроса",
+      "es": "Detección de anomalías de demanda"
+    },
+    "analytics_compliance.regulatory_update_monitoring": {
+      "ru": "Мониторинг регуляторных обновлений",
+      "es": "Monitoreo de actualizaciones regulatorias"
+    },
+    "analytics_compliance.policy_impact_assessment": {
+      "ru": "Оценка влияния политик",
+      "es": "Evaluación del impacto de políticas"
+    },
+    "analytics_compliance.compliance_evidence_collection": {
+      "ru": "Сбор доказательств соблюдения требований",
+      "es": "Recopilación de evidencia de cumplimiento"
+    },
+    "analytics_compliance.control_execution_monitoring": {
+      "ru": "Мониторинг выполнения контрольных процедур",
+      "es": "Monitoreo de la ejecución de controles"
+    },
+    "analytics_compliance.audit_request_coordination": {
+      "ru": "Координация запросов на аудит",
+      "es": "Coordinación de solicitudes de auditoría"
+    },
+    "analytics_compliance.audit_finding_remediation": {
+      "ru": "Устранение замечаний аудита",
+      "es": "Remediación de hallazgos de auditoría"
+    },
+    "analytics_compliance.risk_register_update": {
+      "ru": "Обновление реестра рисков",
+      "es": "Actualización del registro de riesgos"
+    },
+    "analytics_compliance.third_party_due_diligence": {
+      "ru": "Комплексная проверка третьих лиц",
+      "es": "Debida diligencia de terceros"
+    },
+    "analytics_compliance.vendor_risk_reassessment": {
+      "ru": "Повторная оценка рисков поставщиков",
+      "es": "Reevaluación del riesgo de proveedores"
+    },
+    "analytics_compliance.consent_capture_and_verification": {
+      "ru": "Сбор и проверка согласий",
+      "es": "Captura y verificación de consentimiento"
+    },
+    "analytics_compliance.data_subject_request_intake": {
+      "ru": "Прием запросов субъектов данных",
+      "es": "Recepción de solicitudes de interesados"
+    },
+    "autonomous_agents.autonomous_company_research_agent": {
+      "ru": "Автономный агент исследования компаний",
+      "es": "Agente autónomo de investigación de empresas"
+    },
+    "autonomous_agents.deep_research_and_cited_report_agent": {
+      "ru": "Агент углубленных исследований и отчетов с цитатами",
+      "es": "Agente de investigación profunda e informes citados"
+    },
+    "autonomous_agents.market_monitoring_agent": {
+      "ru": "Агент мониторинга рынка",
+      "es": "Agente de monitoreo de mercado"
+    },
+    "autonomous_agents.competitive_intelligence_agent": {
+      "ru": "Агент конкурентной разведки",
+      "es": "Agente de inteligencia competitiva"
+    },
+    "autonomous_agents.lead_research_and_enrichment_agent": {
+      "ru": "Агент исследования и обогащения лидов",
+      "es": "Agente de investigación y enriquecimiento de clientes potenciales"
+    },
+    "autonomous_agents.sales_outreach_preparation_agent": {
+      "ru": "Агент подготовки контактов с клиентами",
+      "es": "Agente de preparación del contacto con clientes"
+    },
+    "autonomous_agents.customer_support_resolution_agent": {
+      "ru": "Агент разрешения обращений клиентов",
+      "es": "Agente de resolución de consultas de clientes"
+    },
+    "autonomous_agents.knowledge_base_curator_agent": {
+      "ru": "Агент-куратор базы знаний",
+      "es": "Agente curador de la base de conocimientos"
+    },
+    "autonomous_agents.document_intake_and_extraction_agent": {
+      "ru": "Агент приема и извлечения документов",
+      "es": "Agente de recepción y extracción de documentos"
+    },
+    "autonomous_agents.contract_review_agent": {
+      "ru": "Агент проверки договоров",
+      "es": "Agente de revisión de contratos"
+    },
+    "autonomous_agents.invoice_processing_agent": {
+      "ru": "Агент обработки счетов",
+      "es": "Agente de procesamiento de facturas"
+    },
+    "autonomous_agents.procurement_sourcing_agent": {
+      "ru": "Агент поиска поставщиков",
+      "es": "Agente de búsqueda de proveedores"
+    },
+    "autonomous_agents.recruiting_coordinator_agent": {
+      "ru": "Агент-координатор подбора персонала",
+      "es": "Agente coordinador de reclutamiento"
+    },
+    "autonomous_agents.employee_onboarding_coordinator_agent": {
+      "ru": "Агент-координатор адаптации сотрудников",
+      "es": "Agente coordinador de incorporación de empleados"
+    },
+    "autonomous_agents.content_research_and_drafting_agent": {
+      "ru": "Агент исследования и подготовки контента",
+      "es": "Agente de investigación y redacción de contenidos"
+    },
+    "autonomous_agents.social_media_campaign_agent": {
+      "ru": "Агент кампаний в социальных сетях",
+      "es": "Agente de campañas en redes sociales"
+    },
+    "autonomous_agents.seo_research_agent": {
+      "ru": "Агент SEO-исследований",
+      "es": "Agente de investigación SEO"
+    },
+    "autonomous_agents.meeting_preparation_agent": {
+      "ru": "Агент подготовки встреч",
+      "es": "Agente de preparación de reuniones"
+    },
+    "autonomous_agents.meeting_follow_up_agent": {
+      "ru": "Агент последующих действий по встрече",
+      "es": "Agente de seguimiento de reuniones"
+    },
+    "autonomous_agents.data_analyst_agent": {
+      "ru": "Агент анализа данных",
+      "es": "Agente analista de datos"
+    },
+    "autonomous_agents.dashboard_narrator_agent": {
+      "ru": "Агент-рассказчик дашборда",
+      "es": "Agente narrador de dashboards"
+    },
+    "autonomous_agents.incident_triage_agent": {
+      "ru": "Агент триажа инцидентов",
+      "es": "Agente de triaje de incidentes"
+    },
+    "autonomous_agents.qa_test_design_agent": {
+      "ru": "Агент проектирования тестов QA",
+      "es": "Agente de diseño de pruebas de QA"
+    },
+    "autonomous_agents.repository_code_review_agent": {
+      "ru": "Агент проверки кода репозитория",
+      "es": "Agente de revisión de código del repositorio"
+    },
+    "autonomous_agents.multi_agent_proposal_factory": {
+      "ru": "Мультиагентная фабрика предложений",
+      "es": "Fábrica de propuestas multiagente"
+    },
+    "autonomous_agents.multi_agent_research_team": {
+      "ru": "Мультиагентная исследовательская команда",
+      "es": "Equipo de investigación multiagente"
+    },
+    "autonomous_agents.supervisor_worker_service_desk": {
+      "ru": "Сервисный стол «супервизор-работник»",
+      "es": "Mesa de servicio supervisor-trabajador"
+    },
+    "autonomous_agents.personal_multi_channel_work_assistant": {
+      "ru": "Персональный мультиканальный рабочий ассистент",
+      "es": "Asistente de trabajo personal multicanal"
+    },
+    "cross_functional.customer_master_data_change_approval": {
+      "ru": "Согласование изменения мастер-данных клиента",
+      "es": "Aprobación de cambios en los datos maestros del cliente"
+    },
+    "cross_functional.supplier_onboarding_and_verification": {
+      "ru": "Онбординг и проверка поставщиков",
+      "es": "Incorporación y verificación de proveedores"
+    },
+    "cross_functional.new_product_launch_coordination": {
+      "ru": "Координация запуска нового продукта",
+      "es": "Coordinación del lanzamiento de nuevos productos"
+    },
+    "cross_functional.branch_opening_readiness": {
+      "ru": "Готовность к открытию филиала",
+      "es": "Preparación para la apertura de sucursal"
+    },
+    "cross_functional.project_status_collection_and_escalation": {
+      "ru": "Сбор статусов проектов и эскалация",
+      "es": "Recopilación y escalamiento del estado de proyectos"
+    },
+    "cross_functional.service_renewal_and_billing_coordination": {
+      "ru": "Координация продления услуг и выставления счетов",
+      "es": "Coordinación de renovación de servicios y facturación"
+    },
+    "cross_functional.quality_nonconformance_handling": {
+      "ru": "Обработка несоответствий качества",
+      "es": "Gestión de no conformidades de calidad"
+    },
+    "cross_functional.corrective_action_tracking": {
+      "ru": "Отслеживание корректирующих действий",
+      "es": "Seguimiento de acciones correctivas"
+    },
+    "cross_functional.business_continuity_exercise_coordination": {
+      "ru": "Координация учений по непрерывности бизнеса",
+      "es": "Coordinación de ejercicios de continuidad del negocio"
+    },
+    "cross_functional.executive_decision_memo_preparation": {
+      "ru": "Подготовка меморандума для принятия решения руководством",
+      "es": "Preparación de memorando de decisión ejecutiva"
+    }
+  }
+}

@@ -1,0 +1,460 @@
+{
+  "schemaVersion": "0.2",
+  "process": {
+    "id": "process_lead_intake",
+    "name": "Lead Intake",
+    "description": "Receive a website lead, classify it, create a CRM deal, and notify sales.",
+    "domain": "sales_crm",
+    "maturity": "specification_ready"
+  },
+  "actors": [
+    {
+      "id": "actor_sales_manager",
+      "name": "Sales Manager",
+      "type": "human",
+      "responsibilities": [
+        "Review high-quality leads",
+        "Follow up with the customer"
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "id": "system_website",
+      "name": "Website Form",
+      "type": "form",
+      "integrationStatus": "api_available",
+      "notes": "Lead arrives through a webhook."
+    },
+    {
+      "id": "system_crm",
+      "name": "CRM",
+      "type": "crm",
+      "integrationStatus": "unknown",
+      "notes": "Exact CRM and API method are not specified yet."
+    },
+    {
+      "id": "system_telegram",
+      "name": "Telegram",
+      "type": "messenger",
+      "integrationStatus": "api_available",
+      "notes": "Used for sales notifications."
+    }
+  ],
+  "dataObjects": [
+    {
+      "id": "data_lead",
+      "name": "Lead",
+      "fields": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "source": "website_form"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "required": true,
+          "source": "website_form"
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "required": false,
+          "source": "website_form"
+        },
+        {
+          "name": "score",
+          "type": "number",
+          "required": false,
+          "source": "ai_classification"
+        }
+      ]
+    },
+    {
+      "id": "data_crm_deal",
+      "name": "CRM Deal",
+      "fields": [
+        {
+          "name": "deal_id",
+          "type": "string",
+          "required": true,
+          "source": "crm"
+        }
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "id": "step_start",
+      "type": "start",
+      "title": "Lead submitted",
+      "description": "A potential customer submits the website form.",
+      "actorId": null,
+      "systemId": "system_website",
+      "inputs": [],
+      "outputs": [
+        "data_lead"
+      ],
+      "operation": {
+        "kind": "trigger",
+        "name": "webhook_received",
+        "parameters": {}
+      },
+      "missingFields": [],
+      "automationHint": {
+        "target": "n8n",
+        "nodeType": "n8n-nodes-base.webhook"
+      },
+      "execution": {
+        "performedBy": "system",
+        "autonomy": "manual",
+        "approvalRequired": false,
+        "restrictions": []
+      }
+    },
+    {
+      "id": "step_classify",
+      "type": "system_task",
+      "title": "Classify lead",
+      "description": "Score the lead based on message and contact details.",
+      "actorId": null,
+      "systemId": null,
+      "inputs": [
+        "data_lead"
+      ],
+      "outputs": [
+        "data_lead"
+      ],
+      "operation": {
+        "kind": "ai_task",
+        "name": "lead_scoring",
+        "parameters": {
+          "threshold": 70
+        }
+      },
+      "missingFields": [],
+      "automationHint": {
+        "target": "n8n",
+        "nodeType": "n8n-nodes-base.openAi"
+      },
+      "execution": {
+        "performedBy": "ai",
+        "autonomy": "assist",
+        "approvalRequired": true,
+        "restrictions": []
+      }
+    },
+    {
+      "id": "step_quality_gate",
+      "type": "decision",
+      "title": "Is lead qualified?",
+      "description": "Route lead based on score.",
+      "actorId": null,
+      "systemId": null,
+      "inputs": [
+        "data_lead"
+      ],
+      "outputs": [],
+      "operation": {
+        "kind": "condition",
+        "name": "score_check",
+        "parameters": {}
+      },
+      "missingFields": [],
+      "automationHint": {
+        "target": "n8n",
+        "nodeType": "n8n-nodes-base.if"
+      },
+      "execution": {
+        "performedBy": "system",
+        "autonomy": "autonomous",
+        "approvalRequired": false,
+        "restrictions": []
+      }
+    },
+    {
+      "id": "step_create_deal",
+      "type": "system_task",
+      "title": "Create CRM deal",
+      "description": "Create a deal for qualified lead.",
+      "actorId": null,
+      "systemId": "system_crm",
+      "inputs": [
+        "data_lead"
+      ],
+      "outputs": [
+        "data_crm_deal"
+      ],
+      "operation": {
+        "kind": "api_call",
+        "name": "create_deal",
+        "parameters": {
+          "pipeline": "{{missing.crm_pipeline}}"
+        }
+      },
+      "missingFields": [
+        "crm_pipeline"
+      ],
+      "automationHint": {
+        "target": "n8n",
+        "nodeType": "n8n-nodes-base.httpRequest"
+      },
+      "execution": {
+        "performedBy": "system",
+        "autonomy": "autonomous",
+        "approvalRequired": false,
+        "restrictions": []
+      }
+    },
+    {
+      "id": "step_notify_sales",
+      "type": "system_task",
+      "title": "Notify sales",
+      "description": "Send notification with lead and deal details.",
+      "actorId": null,
+      "systemId": "system_telegram",
+      "inputs": [
+        "data_lead",
+        "data_crm_deal"
+      ],
+      "outputs": [],
+      "operation": {
+        "kind": "message",
+        "name": "send_telegram_message",
+        "parameters": {
+          "chat_id": "{{missing.telegram_chat_id}}"
+        }
+      },
+      "missingFields": [
+        "telegram_chat_id"
+      ],
+      "automationHint": {
+        "target": "n8n",
+        "nodeType": "n8n-nodes-base.telegram"
+      },
+      "execution": {
+        "performedBy": "system",
+        "autonomy": "autonomous",
+        "approvalRequired": false,
+        "restrictions": []
+      }
+    },
+    {
+      "id": "step_end_qualified",
+      "type": "end",
+      "title": "Qualified lead handled",
+      "description": "The qualified lead was created in CRM and sales was notified.",
+      "actorId": null,
+      "systemId": null,
+      "inputs": [],
+      "outputs": [],
+      "operation": {
+        "kind": "end",
+        "name": "complete",
+        "parameters": {}
+      },
+      "missingFields": [],
+      "automationHint": null,
+      "execution": {
+        "performedBy": "system",
+        "autonomy": "manual",
+        "approvalRequired": false,
+        "restrictions": []
+      }
+    },
+    {
+      "id": "step_end_unqualified",
+      "type": "end",
+      "title": "Lead archived",
+      "description": "The unqualified lead is not sent to sales.",
+      "actorId": null,
+      "systemId": null,
+      "inputs": [],
+      "outputs": [],
+      "operation": {
+        "kind": "end",
+        "name": "complete",
+        "parameters": {}
+      },
+      "missingFields": [],
+      "automationHint": null,
+      "execution": {
+        "performedBy": "system",
+        "autonomy": "manual",
+        "approvalRequired": false,
+        "restrictions": []
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_start_classify",
+      "from": "step_start",
+      "to": "step_classify",
+      "condition": null,
+      "ruleIds": []
+    },
+    {
+      "id": "edge_classify_gate",
+      "from": "step_classify",
+      "to": "step_quality_gate",
+      "condition": null,
+      "ruleIds": []
+    },
+    {
+      "id": "edge_qualified",
+      "from": "step_quality_gate",
+      "to": "step_create_deal",
+      "condition": {
+        "left": "lead.score",
+        "operator": ">=",
+        "right": 70
+      },
+      "ruleIds": [
+        "rule_qualified"
+      ]
+    },
+    {
+      "id": "edge_unqualified",
+      "from": "step_quality_gate",
+      "to": "step_end_unqualified",
+      "condition": {
+        "left": "lead.score",
+        "operator": "<",
+        "right": 70
+      },
+      "ruleIds": [
+        "rule_unqualified"
+      ]
+    },
+    {
+      "id": "edge_deal_notify",
+      "from": "step_create_deal",
+      "to": "step_notify_sales",
+      "condition": null,
+      "ruleIds": []
+    },
+    {
+      "id": "edge_notify_end",
+      "from": "step_notify_sales",
+      "to": "step_end_qualified",
+      "condition": null,
+      "ruleIds": []
+    }
+  ],
+  "exceptions": [
+    {
+      "id": "exception_crm_failure",
+      "sourceStepId": "step_create_deal",
+      "trigger": "CRM API request fails",
+      "handling": "Notify responsible manager and keep lead payload for manual retry."
+    }
+  ],
+  "openQuestions": [
+    {
+      "id": "question_crm_pipeline",
+      "priority": "high",
+      "target": {
+        "entity": "step",
+        "id": "step_create_deal"
+      },
+      "question": "Which CRM pipeline should receive qualified leads?",
+      "blocksAutomationReady": true
+    },
+    {
+      "id": "question_telegram_chat",
+      "priority": "medium",
+      "target": {
+        "entity": "step",
+        "id": "step_notify_sales"
+      },
+      "question": "Which Telegram chat should receive sales notifications?",
+      "blocksAutomationReady": true
+    }
+  ],
+  "readiness": {
+    "overall": 72,
+    "categories": {
+      "structure": {
+        "score": 100,
+        "status": "ok",
+        "notes": []
+      },
+      "actors": {
+        "score": 80,
+        "status": "warning",
+        "notes": [
+          "Sales manager is defined, but escalation owner is not defined."
+        ]
+      },
+      "systems": {
+        "score": 60,
+        "status": "warning",
+        "notes": [
+          "Exact CRM is unknown."
+        ]
+      },
+      "data": {
+        "score": 80,
+        "status": "warning",
+        "notes": [
+          "Lead score source is defined, but CRM field mapping is missing."
+        ]
+      },
+      "branches": {
+        "score": 100,
+        "status": "ok",
+        "notes": []
+      },
+      "exceptions": {
+        "score": 70,
+        "status": "warning",
+        "notes": [
+          "CRM failure is handled, but Telegram failure is not handled."
+        ]
+      },
+      "automation": {
+        "score": 45,
+        "status": "blocked",
+        "notes": [
+          "CRM pipeline and Telegram chat are unresolved."
+        ]
+      }
+    }
+  },
+  "passport": {
+    "goal": "Receive a website lead, classify it, create a CRM deal, and notify sales.",
+    "ownerActorId": "actor_sales_manager",
+    "startsWhen": "Lead submitted",
+    "endsWhen": "Qualified lead handled; Lead archived",
+    "inScope": [],
+    "outOfScope": [],
+    "successMetrics": []
+  },
+  "states": [],
+  "stateTransitions": [],
+  "businessRules": [
+    {
+      "id": "rule_qualified",
+      "name": "Condition for step_quality_gate",
+      "description": "lead.score >= 70",
+      "type": "deterministic",
+      "source": "Process interview",
+      "appliesToStepIds": [
+        "step_quality_gate"
+      ]
+    },
+    {
+      "id": "rule_unqualified",
+      "name": "Condition for step_quality_gate",
+      "description": "lead.score < 70",
+      "type": "deterministic",
+      "source": "Process interview",
+      "appliesToStepIds": [
+        "step_quality_gate"
+      ]
+    }
+  ]
+}
