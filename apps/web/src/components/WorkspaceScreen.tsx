@@ -1154,12 +1154,10 @@ function ExportModal({ project, format, setFormat, appTarget, setAppTarget, n8nT
     finally { setAgentDeliveryBusy(false) }
   }
 
-  return <div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><div className="modal export-modal"><div className="modal__header"><div><span className="section-label">Spec · BPMN · n8n · Agent</span><h2>{t('exportTitle')}</h2></div><button className="icon-button" onClick={onClose} title={t('close')} aria-label={t('close')}><X size={18} /></button></div>
+  return <div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><div className="modal export-modal"><div className="modal__header"><div><span className="section-label">Community · Description · BPMN</span><h2>{t('exportTitle')}</h2></div><button className="icon-button" onClick={onClose} title={t('close')} aria-label={t('close')}><X size={18} /></button></div>
     <div className="export-format-control" role="tablist" aria-label={t('exportFormat')}>
       <button type="button" className={format === 'spec' ? 'is-active' : ''} onClick={() => setFormat('spec')}><FileText size={18} /><span><strong>{t('exportSpec')}</strong><small>{t('exportSpecShort')}</small></span></button>
       <button type="button" className={format === 'bpmn' ? 'is-active' : ''} onClick={() => setFormat('bpmn')}><GitBranch size={18} /><span><strong>BPMN</strong><small>draw.io</small></span></button>
-      <button type="button" className={format === 'n8n' ? 'is-active' : ''} onClick={() => setFormat('n8n')}><Workflow size={18} /><span><strong>n8n</strong><small>workflow</small></span></button>
-      <button type="button" className={format === 'agent' ? 'is-active' : ''} onClick={() => setFormat('agent')}><Bot size={18} /><span><strong>Agent</strong><small>runtime package</small></span></button>
     </div>
     <p className="modal__description">{description}</p>
     {format === 'n8n' && !readiness.draft_ready && <div className="export-warning"><Clock3 size={18} /><span><strong>{t('n8nConfigurationWarning')}</strong>{readiness.next_blocking_question && <small>{readiness.next_blocking_question.question}</small>}</span></div>}

@@ -174,7 +174,7 @@ def test_agent_readiness_blocks_process_without_explicit_ai_role():
     assert "agent_role_not_defined" in readiness["blockers"]
 
 
-def test_agent_export_and_project_mode_api():
+def test_community_keeps_agent_mode_but_blocks_agent_package_export():
     tokens = register()
     headers = authorization(tokens)
     user = request("GET", "/api/v1/auth/me", headers=headers).json()
@@ -212,9 +212,8 @@ def test_agent_export_and_project_mode_api():
         headers=headers,
         json=agent_process(),
     )
-    assert exported.status_code == 200
-    assert exported.headers["content-type"] == "application/zip"
-    assert "agent-openclaw.zip" in exported.headers["content-disposition"]
+    assert exported.status_code == 403
+    assert exported.json()["detail"]["entitlementId"] == "export.agent"
 
     python_export = request(
         "POST",
@@ -222,8 +221,8 @@ def test_agent_export_and_project_mode_api():
         headers=headers,
         json=agent_process(),
     )
-    assert python_export.status_code == 200
-    assert "agent-agno.zip" in python_export.headers["content-disposition"]
+    assert python_export.status_code == 403
+    assert python_export.json()["detail"]["entitlementId"] == "export.agent"
 
 
 def test_project_can_be_created_directly_in_agent_mode():

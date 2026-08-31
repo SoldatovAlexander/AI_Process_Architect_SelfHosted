@@ -69,6 +69,10 @@ def test_registration_creates_effective_self_hosted_entitlements():
     assert response.json()["plan_id"] == "self_hosted_full"
     assert response.json()["status"] == "active"
     assert response.json()["entitlements"]["project.create"] is True
+    assert response.json()["entitlements"]["export.spec"] is True
+    assert response.json()["entitlements"]["export.bpmn"] is True
+    assert response.json()["entitlements"]["export.n8n"] is False
+    assert response.json()["entitlements"]["export.agent"] is False
 
 
 def test_hosted_profile_uses_hosted_default_plan(monkeypatch):

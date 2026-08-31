@@ -67,7 +67,7 @@ def test_support_diagnostics_require_admin_role_and_are_privacy_safe(monkeypatch
     assert payload["configuration"]["deployment_profile"] == "default"
     assert payload["configuration"]["administration_mode"] == "self_hosted"
     assert payload["configuration"]["billing_enabled"] is False
-    assert payload["configuration"]["license_mode"] == "consumer"
+    assert payload["configuration"]["license_mode"] == "none"
     assert payload["configuration"]["entitlement_catalog_version"] == "1.1"
     assert payload["configuration"]["self_hosted_default_plan"] == "self_hosted_full"
     assert "token" not in diagnostics.text.lower()

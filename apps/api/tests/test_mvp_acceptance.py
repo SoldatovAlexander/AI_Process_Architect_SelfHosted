@@ -13,11 +13,6 @@ from test_api import authorization, register, request
 EXPORT_TARGETS = (
     "spec",
     "bpmn_drawio",
-    "n8n_2_32",
-    "n8n_2_31",
-    "n8n_2_30",
-    "agent_openclaw",
-    "agent_hermes",
 )
 
 

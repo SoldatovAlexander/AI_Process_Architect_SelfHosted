@@ -60,7 +60,7 @@ def test_export_package_is_deterministic_and_complete_for_all_targets():
             assert workflow["meta"]["targetN8nMinor"] == target
 
 
-def test_authenticated_package_endpoint_returns_zip():
+def test_community_blocks_legacy_n8n_package_endpoint():
     headers = authorization(register())
     response = request(
         "POST",
@@ -68,11 +68,8 @@ def test_authenticated_package_endpoint_returns_zip():
         headers=headers,
         json=FIXTURES[0],
     )
-    assert response.status_code == 200
-    assert response.headers["content-type"] == "application/zip"
-    assert "attachment" in response.headers["content-disposition"]
-    with ZipFile(BytesIO(response.content)) as archive:
-        assert "manifest.json" in archive.namelist()
+    assert response.status_code == 403
+    assert response.json()["detail"]["entitlementId"] == "export.n8n"
 
 
 def test_n8n_package_separates_general_and_process_specific_instructions():
@@ -135,7 +132,7 @@ def test_n8n_instructions_follow_selected_target(target_minor, tested_patch):
         assert workflow["meta"]["testedPatch"] == tested_patch
 
 
-def test_authenticated_n8n_package_endpoint_returns_zip():
+def test_community_blocks_n8n_package_endpoint():
     headers = authorization(register())
     response = request(
         "POST",
@@ -144,10 +141,5 @@ def test_authenticated_n8n_package_endpoint_returns_zip():
         json=FIXTURES[0],
     )
 
-    assert response.status_code == 200
-    assert response.headers["content-type"] == "application/zip"
-    assert "n8n-2.31.zip" in response.headers["content-disposition"]
-    with ZipFile(BytesIO(response.content)) as archive:
-        assert "N8N_BEGINNER_GUIDE.md" not in archive.namelist()
-        assert "La guía general no está incluida" in archive.read("README.md").decode("utf-8")
-        assert "Configurar" in archive.read("PROCESS_SETUP.md").decode("utf-8")
+    assert response.status_code == 403
+    assert response.json()["detail"]["entitlementId"] == "export.n8n"
