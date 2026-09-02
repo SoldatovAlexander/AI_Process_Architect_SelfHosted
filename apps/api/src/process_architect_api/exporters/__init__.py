@@ -1,5 +1,5 @@
 from .app_spec import SUPPORTED_APP_TARGETS, generate_app_spec
-from .agents import SUPPORTED_AGENT_TARGETS, calculate_agent_readiness, generate_agent_package
+from .agents import OPENCLAW_LEGACY_VERSION, OPENCLAW_SUPPORTED_VERSIONS, SUPPORTED_AGENT_TARGETS, calculate_agent_readiness, generate_agent_package
 from .bpmn import generate_bpmn
 from .drawio import generate_drawio
 from .package import generate_export_package, generate_n8n_package, generate_n8n_roundtrip_package
@@ -17,6 +17,8 @@ __all__ = [
     "generate_app_spec",
     "SUPPORTED_APP_TARGETS",
     "SUPPORTED_AGENT_TARGETS",
+    "OPENCLAW_SUPPORTED_VERSIONS",
+    "OPENCLAW_LEGACY_VERSION",
     "calculate_agent_readiness",
     "generate_agent_package",
 ]

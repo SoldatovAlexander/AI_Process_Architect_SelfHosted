@@ -135,8 +135,8 @@ def test_authenticated_export_endpoints():
     assert "-bpmn.drawio" in drawio.headers["content-disposition"]
 
     n8n = request("POST", "/api/v1/exports/n8n/2.32", headers=headers, json=process_ir)
-    assert n8n.status_code == 403
-    assert n8n.json()["detail"]["entitlementId"] == "export.n8n"
+    assert n8n.status_code == 200
+    assert n8n.json()["meta"]["targetN8nMinor"] == "2.32"
 
 
 def test_localized_export_rejects_invalid_locale_without_server_error():

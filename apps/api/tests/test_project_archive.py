@@ -10,6 +10,7 @@ from process_architect_api.deepseek import DeepSeekAnalystTurn, DeepSeekClient
 from process_architect_api.models import InterviewAnalysisResult
 from test_analyst_api import create_proposal, create_session
 from test_api import authorization, request
+from test_licensing import configure_issuer, envelope
 
 
 def _documents(content: bytes) -> dict[str, bytes]:
@@ -99,6 +100,59 @@ def _reset_database(database_path) -> None:
     database_path.unlink()
     get_settings.cache_clear()
     init_database()
+
+
+def test_revoked_workspace_can_export_backup_for_licensed_workspace_restore(tmp_path, monkeypatch):
+    source_tokens = request(
+        "POST",
+        "/api/v1/auth/register",
+        json={"email": "backup-source@example.com", "password": "correct-horse-battery-staple"},
+    ).json()
+    source_headers = authorization(source_tokens)
+    source_workspace = request("GET", "/api/v1/auth/me", headers=source_headers).json()["workspaces"][0]["workspace_id"]
+    process_ir = json.loads(
+        (Path(__file__).resolve().parents[3] / "02_architecture" / "examples" / "lead-intake.process-ir.json").read_text(encoding="utf-8")
+    )
+    project = request(
+        "POST",
+        "/api/v1/projects",
+        headers=source_headers,
+        json={"workspace_id": source_workspace, "name": "Backup after revocation", "process_ir": process_ir},
+    )
+    assert project.status_code == 201
+
+    private_key, revocations_path = configure_issuer(tmp_path, monkeypatch)
+    deployment_id = request("GET", f"/api/v1/workspaces/{source_workspace}/license", headers=source_headers).json()["deploymentId"]
+    source_license = envelope(private_key, deployment_id, source_workspace, licenseId="backup-source-license")
+    assert request("POST", f"/api/v1/workspaces/{source_workspace}/license/offline", headers=source_headers, json={"envelope": source_license}).status_code == 200
+    revocations_path.write_text('{"schemaVersion":"1","licenseIds":["backup-source-license"]}', encoding="utf-8")
+    assert request("GET", f"/api/v1/workspaces/{source_workspace}/entitlements", headers=source_headers).json()["status"] == "revoked"
+
+    exported = request("GET", f"/api/v1/project-archives/projects/{project.json()['id']}", headers=source_headers)
+    assert exported.status_code == 200
+    assert b"backup-source-license" not in exported.content
+
+    _reset_database(tmp_path / "test.db")
+    target_tokens = request(
+        "POST",
+        "/api/v1/auth/register",
+        json={"email": "backup-target@example.com", "password": "correct-horse-battery-staple"},
+    ).json()
+    target_headers = authorization(target_tokens)
+    target_workspace = request("GET", "/api/v1/auth/me", headers=target_headers).json()["workspaces"][0]["workspace_id"]
+    target_deployment = request("GET", f"/api/v1/workspaces/{target_workspace}/license", headers=target_headers).json()["deploymentId"]
+    target_license = envelope(private_key, target_deployment, target_workspace, licenseId="backup-target-license")
+    assert request("POST", f"/api/v1/workspaces/{target_workspace}/license/offline", headers=target_headers, json={"envelope": target_license}).status_code == 200
+
+    restored = request(
+        "POST",
+        "/api/v1/project-archives/restore",
+        headers=target_headers,
+        params={"workspaceId": target_workspace},
+        content=exported.content,
+    )
+    assert restored.status_code == 200
+    assert restored.json()["project"]["workspace_id"] == target_workspace
 
 
 def test_exports_validates_and_restores_complete_project_history(tmp_path, monkeypatch):

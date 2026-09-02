@@ -12,10 +12,7 @@ from test_api import authorization, request
 
 
 ROOT = Path(__file__).resolve().parents[3]
-WORKFLOW_PATH = ROOT / "artifacts/n8n/lead-intake-2.32.json"
-if not WORKFLOW_PATH.is_file():
-    pytest.skip("optional n8n runtime fixture is not included in the Community package", allow_module_level=True)
-WORKFLOW = json.loads(WORKFLOW_PATH.read_text(encoding="utf-8"))
+WORKFLOW = json.loads((ROOT / "artifacts/n8n/lead-intake-2.32.json").read_text(encoding="utf-8"))
 
 
 def _register(email: str) -> tuple[dict, dict]:

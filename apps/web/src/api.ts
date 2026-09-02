@@ -50,6 +50,7 @@ import type {
   AdminUsage,
   AdminInvoices,
   AdminActivityReport,
+  AdminSelfHostedLicense,
   AdminPage,
 } from './types'
 
@@ -147,6 +148,10 @@ export const api = {
   adminUsage: () => request<AdminUsage>('/api/v1/admin/billing/usage'),
   adminInvoices: () => request<AdminInvoices>('/api/v1/admin/billing/invoices?limit=100'),
   adminActivityReport: () => request<AdminActivityReport>('/api/v1/admin/reports/activity'),
+  adminSelfHostedLicenses: () => request<{ items: AdminSelfHostedLicense[] }>('/api/v1/admin/self-hosted-licenses'),
+  issueSelfHostedLicense: (input: { customerId: string; deploymentId: string; workspaceId: string; months?: number; reason: string; idempotencyKey: string }) => request<AdminSelfHostedLicense>('/api/v1/admin/self-hosted-licenses', { method: 'POST', body: JSON.stringify(input) }),
+  renewSelfHostedLicense: (licenseId: string, input: { months?: number; reason: string; idempotencyKey: string }) => request<AdminSelfHostedLicense>(`/api/v1/admin/self-hosted-licenses/${licenseId}/renew`, { method: 'POST', body: JSON.stringify(input) }),
+  revokeSelfHostedLicense: (licenseId: string, reason: string) => request<AdminSelfHostedLicense>(`/api/v1/admin/self-hosted-licenses/${licenseId}/revoke`, { method: 'POST', body: JSON.stringify({ reason }) }),
   workspaceActivityReport: (workspaceId: string) => request<AdminActivityReport>(`/api/v1/workspaces/${workspaceId}/activity-report`),
   renameWorkspace: (workspaceId: string, name: string) => request<{ id: string; name: string; defaultLocale: string }>(`/api/v1/workspaces/${workspaceId}`, { method: 'PATCH', body: JSON.stringify({ name }) }),
   createWorkspace: (name: string, defaultLocale: Locale) => request<WorkspaceMembership>('/api/v1/workspaces', { method: 'POST', body: JSON.stringify({ name, default_locale: defaultLocale }) }),
@@ -356,19 +361,20 @@ export async function downloadProjectArchive(project: Project) {
 export type ExportFormat = 'spec' | 'bpmn' | 'n8n' | 'agent'
 export type AppSpecTarget = 'cursor' | 'codex' | 'google_ai_studio' | 'bolt' | 'generic'
 export type AgentTarget = 'openclaw' | 'hermes' | 'langgraph' | 'crewai' | 'agno'
+export type OpenClawVersion = '2026.7.1' | '2026.8.1' | '2026.8.2'
 
-function exportRequest(format: ExportFormat, n8nTarget: string, appTarget: AppSpecTarget, agentTarget: AgentTarget, locale: string, includeN8nGuide: boolean) {
+function exportRequest(format: ExportFormat, n8nTarget: string, appTarget: AppSpecTarget, agentTarget: AgentTarget, openclawVersion: OpenClawVersion, locale: string, includeN8nGuide: boolean) {
   if (format === 'spec') return `/api/v1/exports/app-spec/${appTarget}?locale=${encodeURIComponent(locale)}`
   if (format === 'bpmn') return '/api/v1/exports/drawio'
-  if (format === 'agent') return `/api/v1/exports/agent/${agentTarget}/package?locale=${encodeURIComponent(locale)}`
+  if (format === 'agent') return `/api/v1/exports/agent/${agentTarget}/package?locale=${encodeURIComponent(locale)}${agentTarget === 'openclaw' ? `&runtimeVersion=${encodeURIComponent(openclawVersion)}` : ''}`
   return `/api/v1/exports/n8n/${n8nTarget}/package?locale=${encodeURIComponent(locale)}&includeGeneralGuide=${includeN8nGuide}`
 }
 
-function exportFilename(project: Project, format: ExportFormat, n8nTarget: string, appTarget: AppSpecTarget, agentTarget: AgentTarget) {
+function exportFilename(project: Project, format: ExportFormat, n8nTarget: string, appTarget: AppSpecTarget, agentTarget: AgentTarget, openclawVersion: OpenClawVersion) {
   const processId = project.current_revision.process_ir.process.id
   if (format === 'spec') return `${processId}-app-spec-${appTarget}.md`
   if (format === 'bpmn') return `${processId}-bpmn.drawio`
-  if (format === 'agent') return `${processId}-agent-${agentTarget}.zip`
+  if (format === 'agent') return `${processId}-agent-${agentTarget}${agentTarget === 'openclaw' ? `-${openclawVersion}` : ''}.zip`
   return `${processId}-n8n-${n8nTarget}.zip`
 }
 
@@ -378,12 +384,13 @@ export async function downloadExport(
   n8nTarget: string,
   appTarget: AppSpecTarget,
   agentTarget: AgentTarget,
+  openclawVersion: OpenClawVersion,
   includeN8nGuide: boolean,
   roundTrip = false,
 ) {
   const path = format === 'n8n' && roundTrip
     ? `/api/v1/n8n-imports/projects/${project.id}/round-trip/${n8nTarget}/package`
-    : exportRequest(format, n8nTarget, appTarget, agentTarget, project.default_locale, includeN8nGuide)
+    : exportRequest(format, n8nTarget, appTarget, agentTarget, openclawVersion, project.default_locale, includeN8nGuide)
   const body = format === 'n8n' && roundTrip
     ? { revision_id: project.current_revision_id, locale: project.default_locale, include_general_guide: includeN8nGuide }
     : project.current_revision.process_ir
@@ -407,7 +414,7 @@ export async function downloadExport(
   const url = URL.createObjectURL(blob)
   const anchor = document.createElement('a')
   anchor.href = url
-  anchor.download = exportFilename(project, format, n8nTarget, appTarget, agentTarget)
+  anchor.download = exportFilename(project, format, n8nTarget, appTarget, agentTarget, openclawVersion)
   anchor.click()
   URL.revokeObjectURL(url)
 }

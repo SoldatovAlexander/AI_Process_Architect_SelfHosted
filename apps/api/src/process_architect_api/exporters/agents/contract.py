@@ -4,6 +4,10 @@ from typing import Any
 
 
 SUPPORTED_AGENT_TARGETS = ("openclaw", "hermes", "langgraph", "crewai", "agno")
+OPENCLAW_SUPPORTED_VERSIONS = ("2026.7.1", "2026.8.1", "2026.8.2")
+# Keep the pre-2.0 line as the API fallback for existing compatibility gateways
+# that cannot yet report the underlying OpenClaw version.
+OPENCLAW_LEGACY_VERSION = "2026.7.1"
 
 
 def _status(score: int) -> str:

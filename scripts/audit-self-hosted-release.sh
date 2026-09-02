@@ -53,6 +53,7 @@ if [[ -f SELF_HOSTED_SOURCE_REVISION ]]; then
     fi
   done
   require compose.yml 'LLM_SYSTEM_FALLBACK_ENABLED: "false"'
+  require compose.yml './config/licensing:/app/config/licensing:ro'
   COMPOSE_ARGS=(compose.yml)
 else
   for expected in \
@@ -64,6 +65,7 @@ else
     'E2E_RUNTIME_ENABLED: "false"'; do
     require compose.self-hosted.yml "$expected"
   done
+  require compose.self-hosted.yml './config/licensing:/app/config/licensing:ro'
   COMPOSE_ARGS=(compose.yml compose.self-hosted.yml)
 fi
 

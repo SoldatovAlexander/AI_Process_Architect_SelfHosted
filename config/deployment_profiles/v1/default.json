@@ -7,6 +7,6 @@
   "llm": {"allowedProviders": ["deepseek", "openai", "openai_compatible"], "userCredentialsRequired": true, "systemFallbackAllowed": true, "customBaseUrlAllowed": true, "localEndpointsAllowed": false},
   "network": {"egress": "unrestricted", "allowedHosts": []},
   "features": {"runtimeConnections": true, "codeGeneration": true, "externalDocumentSources": true, "monitoring": true},
-  "administration": {"mode": "self_hosted", "billingEnabled": false, "licenseMode": "none"},
+  "administration": {"mode": "self_hosted", "billingEnabled": false, "licenseMode": "consumer"},
   "deploymentLocked": ["llm.allowedProviders", "llm.systemFallbackAllowed", "network.egress", "administration"]
 }

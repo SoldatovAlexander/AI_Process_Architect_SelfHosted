@@ -47,6 +47,20 @@ def test_agent_verifier_requires_explicit_runtime_identity(monkeypatch):
         asyncio.run(verify_runtime_connection(profile, transport=transport))
 
 
+def test_openclaw_verifier_records_only_certified_runtime_version(monkeypatch):
+    monkeypatch.setenv("RUNTIME_TEST_SECRET", "secret")
+    monkeypatch.setattr("process_architect_api.services.runtime_connections.validate_egress_target", lambda _url: None)
+    profile = Profile()
+    profile.kind = "openclaw"
+    profile.n8n_minor = None
+
+    certified = httpx.MockTransport(lambda request: httpx.Response(200, request=request, json={"runtime": "openclaw", "version": "bridge-2.0", "runtimeVersion": "2026.8.2"}))
+    assert asyncio.run(verify_runtime_connection(profile, transport=certified)).detected_version == "2026.8.2"
+
+    legacy = httpx.MockTransport(lambda request: httpx.Response(200, request=request, json={"runtime": "openclaw", "version": "bridge-1.4"}))
+    assert asyncio.run(verify_runtime_connection(profile, transport=legacy)).detected_version is None
+
+
 def test_verifier_blocks_link_local_metadata_targets(monkeypatch):
     monkeypatch.setattr(socket, "getaddrinfo", lambda *_args, **_kwargs: [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("169.254.169.254", 0))])
     with pytest.raises(RuntimeVerificationError, match="egress_target_blocked"):

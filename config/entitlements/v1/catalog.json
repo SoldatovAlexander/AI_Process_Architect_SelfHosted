@@ -36,10 +36,10 @@
     {
       "id": "self_hosted_full",
       "audience": "self_hosted",
-      "name": "Self-hosted Community",
+      "name": "Self-hosted full",
       "entitlements": {
         "project.create": true, "project.max_active": -1, "workspace.max_members": -1, "export.spec": true, "export.bpmn": true,
-        "export.n8n": false, "export.agent": false, "code.generate": true, "template.private": true,
+        "export.n8n": true, "export.agent": true, "code.generate": true, "template.private": true,
         "interview.import": true, "runtime.publish": true, "agent.execute": true, "backup.export": true,
         "usage.llm_turn.monthly": -1, "usage.export.monthly": -1,
         "usage.runtime_publish.monthly": -1, "usage.agent_run.monthly": -1

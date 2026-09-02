@@ -18,6 +18,7 @@ from .entitlement_dependencies import (
 from .exporters import (
     SUPPORTED_APP_TARGETS,
     SUPPORTED_AGENT_TARGETS,
+    OPENCLAW_SUPPORTED_VERSIONS,
     generate_app_spec,
     generate_agent_package,
     generate_bpmn,
@@ -279,6 +280,7 @@ def agent_package_export(
     settings: AppSettings,
     idempotency_key: IdempotencyHeader = None,
     locale: str = Query(default="en"),
+    runtime_version: str | None = Query(default=None, alias="runtimeVersion"),
     process_ir: dict[str, Any] = Body(),
 ) -> Response:
     process_ir, _ = _validated(process_ir)
@@ -288,11 +290,21 @@ def agent_package_export(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"code": "unsupported_agent_target", "supported": SUPPORTED_AGENT_TARGETS},
         )
+    if runtime_version is not None and target_id != "openclaw":
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={"code": "runtime_version_not_supported", "message": "A runtime version is supported only for OpenClaw packages."},
+        )
+    if target_id == "openclaw" and runtime_version is not None and runtime_version not in OPENCLAW_SUPPORTED_VERSIONS:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={"code": "unsupported_openclaw_version", "supported": OPENCLAW_SUPPORTED_VERSIONS},
+        )
     process_id = process_ir["process"]["id"]
     package = _metered_export(
         db, settings, workspace_id=entitlement.workspace_id, operation=f"export.agent.{target_id}",
         idempotency_key=idempotency_key,
-        generate=lambda: generate_agent_package(process_ir, target_id, locale),
+        generate=lambda: generate_agent_package(process_ir, target_id, locale, runtime_version),
     )
     return Response(
         package,

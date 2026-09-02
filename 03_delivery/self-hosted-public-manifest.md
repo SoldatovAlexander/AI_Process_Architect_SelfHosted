@@ -9,8 +9,9 @@ repository is assembled from the main source repository.
   the self-hosted product;
 - customer Docker configuration: `compose.yml`, `compose.self-hosted.yml`, `.env.self-hosted.example`,
   `infra/monitoring`, `infra/systemd`, and customer-facing scripts;
-- deployment and entitlement configuration: `config/deployment_profiles`, `config/entitlements`;
-- customer documentation: installation, upgrade/rollback, backup/restore, Community export limits, known
+- deployment, entitlement, and licensing consumer configuration: `config/deployment_profiles`,
+  `config/entitlements`, `config/licensing`;
+- customer documentation: installation, upgrade/rollback, backup/restore, licence activation, known
   limitations, `SECURITY.md`, and release notes;
 - fixtures and schemas that demonstrate supported imports and exports, provided they contain no client
   data or credentials.
@@ -37,13 +38,16 @@ repository is assembled from the main source repository.
 2. Re-run `scripts/audit-self-hosted-release.sh` after assembly and before every tag.
 3. Build the customer images from the public tree and run a clean Ubuntu acceptance scenario.
 4. Publish SHA-256 checksums for the tagged source archive and container image digests.
-5. Verify that the assembled tree starts with both `process_architect_api.hosted` and `admin_routes.py`
+5. Publish only issuer public keys and the signed revocation-list format. The issuer remains a separate
+   closed operator service.
+6. Verify that the assembled tree starts with both `process_architect_api.hosted` and `admin_routes.py`
    absent; the API must not attempt to import either module under a self-hosted profile.
 
 ## Required evidence for the first public tag
 
-- clean Ubuntu installation report, including successful BPMN and description export;
-- server-side rejection evidence for n8n and Agent-ready package exports;
+- clean Ubuntu installation report, including offline and online activation;
+- one-month default and three-month renewal evidence, plus rejected four-month issue;
+- revocation and read-only/backup behavior evidence;
 - smoke video/trace without external LLM or runtime credentials;
 - dependency/SBOM review and known-limitations note;
 - security review signed off by the release operator.

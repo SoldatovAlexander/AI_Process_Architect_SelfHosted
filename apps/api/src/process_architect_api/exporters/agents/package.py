@@ -5,7 +5,7 @@ import re
 from typing import Any
 
 from ..package import _zip_bytes
-from .contract import SUPPORTED_AGENT_TARGETS, build_agent_contract
+from .contract import OPENCLAW_LEGACY_VERSION, OPENCLAW_SUPPORTED_VERSIONS, SUPPORTED_AGENT_TARGETS, build_agent_contract
 from .python_runtime import framework_files, runtime_core_files
 
 
@@ -62,12 +62,13 @@ Finish only when: {process['completesWhen'] or 'the result is verified'}.
 """
 
 
-def _readme(contract: dict[str, Any], target: str, locale: str) -> str:
+def _readme(contract: dict[str, Any], target: str, locale: str, runtime_version: str | None = None) -> str:
     ready = contract["readiness"]
+    target_label = f"{target} {runtime_version}" if runtime_version else target
     if locale.startswith("ru"):
         return f"""# Агентный пакет: {contract['process']['name']}
 
-Целевая среда: **{target}**. Готовность к автономному запуску: **{ready['overall']}%**.
+Целевая среда: **{target_label}**. Готовность к автономному запуску: **{ready['overall']}%**.
 
 Пакет является стартовой конфигурацией, а не разрешением на промышленный запуск. Сначала устраните блокировки из `agent-readiness.json`, настройте инструменты и секреты через переменные окружения, затем выполните сценарии из `evals/scenarios.json`.
 
@@ -75,7 +76,7 @@ def _readme(contract: dict[str, Any], target: str, locale: str) -> str:
 """
     return f"""# Agent package: {contract['process']['name']}
 
-Target runtime: **{target}**. Autonomous deployment readiness: **{ready['overall']}%**.
+Target runtime: **{target_label}**. Autonomous deployment readiness: **{ready['overall']}%**.
 
 This package is a deployment starting point, not production approval. Resolve `agent-readiness.json` blockers, configure tools and secrets through environment variables, then run `evals/scenarios.json`.
 
@@ -304,7 +305,7 @@ def _process_docs(contract: dict[str, Any]) -> dict[str, str]:
     }
 
 
-def _openclaw_files(contract: dict[str, Any], slug: str) -> dict[str, str]:
+def _openclaw_files(contract: dict[str, Any], slug: str, runtime_version: str) -> dict[str, str]:
     tool_lines = [f"- `{tool['id']}`: {tool['name']} ({tool['integrationStatus']})" for tool in contract["tools"]]
     return {
         "openclaw/workspace/AGENTS.md": "# Agent instructions\n\n## Sources of truth\nRead `docs/process.md`, `docs/business-rules.md`, `docs/escalation.md`, and `docs/acceptance.md`.\n\n## Allowed\nRead approved process material, prepare structured drafts, and request clarification.\n\n## Prohibited\nDo not change business state directly, invent rules or sources, expose secrets, or call a tool not enabled by the backend permission registry.\n",
@@ -312,11 +313,26 @@ def _openclaw_files(contract: dict[str, Any], slug: str) -> dict[str, str]:
         "openclaw/workspace/TOOLS.md": "# Approved tool mapping\n\n" + ("\n".join(tool_lines) or "No tools have been mapped yet.") + "\n",
         "openclaw/workspace/HEARTBEAT.md": "# Heartbeat\n\nCheck only explicitly scheduled work. Report blocked tasks and pending human approvals; do not start new business operations autonomously.\n",
         f"openclaw/workspace/skills/{slug}/SKILL.md": _skill(contract),
+        "openclaw/COMPATIBILITY.json": json.dumps({
+            "adapter": "ai-process-architect/openclaw",
+            "adapterVersion": "2.0",
+            "targetOpenClawVersion": runtime_version,
+            "certifiedOpenClawVersions": list(OPENCLAW_SUPPORTED_VERSIONS),
+            "sessionVisibility": "self",
+            "delivery": {"activation": "manual", "requiresCompatibilityGateway": True},
+        }, ensure_ascii=False, indent=2) + "\n",
+        "openclaw/README.md": (
+            f"# OpenClaw {runtime_version} adapter\n\n"
+            "Merge `openclaw.config.fragment.json5` after review, then copy `workspace/` to the agent workspace. "
+            "The fragment explicitly keeps session visibility at `self`; do not widen it for this process. "
+            "Package delivery requires the AI Process Architect compatibility gateway and stores the package inactive. "
+            "Do not connect this package directly to OpenClaw operator APIs.\n"
+        ),
         "openclaw/openclaw.config.fragment.json5": json.dumps({
             "gateway": {"mode": "local", "bind": "loopback", "auth": {"mode": "token", "token": "FROM_SECRET_STORE"}},
             "session": {"dmScope": "per-channel-peer"},
             "agents": {"defaults": {"workspace": f"~/.openclaw/workspace-{slug}"}},
-            "tools": {"profile": "messaging", "deny": ["group:automation", "group:runtime", "group:fs", "sessions_spawn", "sessions_send"], "fs": {"workspaceOnly": True}, "exec": {"security": "deny", "ask": "always"}, "elevated": {"enabled": False}},
+            "tools": {"profile": "messaging", "deny": ["group:automation", "group:runtime", "group:fs", "sessions_spawn", "sessions_send"], "sessions": {"visibility": "self"}, "fs": {"workspaceOnly": True}, "exec": {"security": "deny", "ask": "always"}, "elevated": {"enabled": False}},
         }, ensure_ascii=False, indent=2) + "\n",
     }
 
@@ -347,13 +363,24 @@ def _hermes_files(contract: dict[str, Any], slug: str) -> dict[str, str]:
     }
 
 
-def generate_agent_package(process_ir: dict[str, Any], target: str, locale: str = "en") -> bytes:
+def generate_agent_package(
+    process_ir: dict[str, Any],
+    target: str,
+    locale: str = "en",
+    runtime_version: str | None = None,
+) -> bytes:
     if target not in SUPPORTED_AGENT_TARGETS:
         raise ValueError(f"Unsupported agent target: {target}")
+    if target != "openclaw" and runtime_version is not None:
+        raise ValueError("A runtime version is supported only for OpenClaw packages.")
+    if target == "openclaw":
+        runtime_version = runtime_version or OPENCLAW_LEGACY_VERSION
+        if runtime_version not in OPENCLAW_SUPPORTED_VERSIONS:
+            raise ValueError(f"Unsupported OpenClaw version: {runtime_version}")
     contract = build_agent_contract(process_ir)
     slug = _slug(contract["process"]["id"])
     canonical = {
-        "README.md": _readme(contract, target, locale),
+        "README.md": _readme(contract, target, locale, runtime_version),
         "agent-contract.json": json.dumps(contract, ensure_ascii=False, indent=2) + "\n",
         "agent-readiness.json": json.dumps(contract["readiness"], ensure_ascii=False, indent=2) + "\n",
         "process-ir.json": json.dumps(process_ir, ensure_ascii=False, indent=2) + "\n",
@@ -368,7 +395,7 @@ def generate_agent_package(process_ir: dict[str, Any], target: str, locale: str 
     canonical.update(runtime_core_files())
     files = dict(canonical)
     if target == "openclaw":
-        files.update(_openclaw_files(contract, slug))
+        files.update(_openclaw_files(contract, slug, runtime_version))
         runtime_root = "openclaw/workspace"
     elif target == "hermes":
         files.update(_hermes_files(contract, slug))

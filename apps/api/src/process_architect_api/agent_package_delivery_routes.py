@@ -59,7 +59,12 @@ def _preview(db: Session, project_id: str, request: AgentPackageDeliveryPreviewR
     project, revision = _source(db, project_id, request.revision_id, user)
     profile = _profile(db, request.profile_id, project.workspace_id)
     try:
-        prepared = prepare_agent_package_delivery(revision.process_ir, profile.kind, project.default_locale)
+        prepared = prepare_agent_package_delivery(
+            revision.process_ir,
+            profile.kind,
+            project.default_locale,
+            profile.detected_version,
+        )
     except (ValueError, RuntimeError) as error:
         raise HTTPException(status_code=422, detail={"code": "agent_package_invalid", "message": str(error)}) from error
     return project, revision, profile, prepared

@@ -115,6 +115,22 @@ export interface AdminAuditEvent {
   createdAt: string
 }
 
+export interface AdminSelfHostedLicense {
+  licenseId: string
+  customerId: string
+  deploymentId: string
+  workspaceId: string
+  planId: string
+  issuedAt: string
+  expiresAt: string
+  graceUntil: string
+  status: 'issued' | 'revoked'
+  supersedesLicenseId: string | null
+  revokedAt: string | null
+  activationCode?: string
+  envelope?: { payload: Record<string, unknown>; signature: string }
+}
+
 export interface AdminLLMUsage {
   summary: {
     periodStart: string

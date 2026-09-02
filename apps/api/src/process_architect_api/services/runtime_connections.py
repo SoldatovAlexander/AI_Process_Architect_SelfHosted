@@ -6,6 +6,8 @@ from urllib.parse import urlparse
 
 import httpx
 
+from ..exporters.agents import OPENCLAW_SUPPORTED_VERSIONS
+
 
 class RuntimeVerificationError(RuntimeError):
     def __init__(self, code: str):
@@ -86,7 +88,11 @@ async def verify_runtime_connection(profile, *, transport: httpx.AsyncBaseTransp
             identity = str(payload.get("runtime") or payload.get("kind") or payload.get("name") or "").lower()
             if profile.kind not in identity:
                 raise RuntimeVerificationError("runtime_identity_mismatch")
-            version = payload.get("version")
+            version = payload.get("runtimeVersion") if profile.kind == "openclaw" else payload.get("version")
+            # Older compatibility gateways only expose their own adapter version. Keep
+            # them verified, but do not mistake that value for an OpenClaw version.
+            if profile.kind == "openclaw" and version not in OPENCLAW_SUPPORTED_VERSIONS:
+                version = None
             return RuntimeVerification("connection_verified", str(version)[:64] if version else None)
     except RuntimeVerificationError:
         raise

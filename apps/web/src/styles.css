@@ -177,11 +177,22 @@ h1, h2, h3 { letter-spacing: 0; }
 .admin-table--users .admin-table__head, .admin-table--users .admin-table__row { grid-template-columns: minmax(230px, 2fr) 130px 100px 90px 110px; }
 .admin-table--workspaces .admin-table__head, .admin-table--workspaces .admin-table__row { grid-template-columns: minmax(190px, 1.7fr) 70px 70px 150px 130px 105px; }
 .admin-table--audit .admin-table__head, .admin-table--audit .admin-table__row { grid-template-columns: minmax(190px, 1.3fr) minmax(190px, 1.4fr) 95px minmax(180px, 1.5fr) 105px; }
-.admin-table--llm .admin-table__head, .admin-table--llm .admin-table__row { grid-template-columns: minmax(210px, 1.5fr) repeat(3, minmax(110px, .7fr)) minmax(140px, .8fr); }
+.admin-table--llm .admin-table__head, .admin-table--llm .admin-table__row { grid-template-columns: minmax(210px, 1.5fr) repeat(3, minmax(110px, .7fr)); }
 .admin-table--usage .admin-table__head, .admin-table--usage .admin-table__row { grid-template-columns: minmax(210px, 1.5fr) minmax(150px, 1fr) repeat(3, minmax(100px, .7fr)); }
 .admin-table--invoices .admin-table__head, .admin-table--invoices .admin-table__row { grid-template-columns: minmax(180px, 1.3fr) minmax(150px, 1fr) minmax(110px, .75fr) repeat(2, minmax(130px, .8fr)) minmax(130px, .8fr); }
 .admin-table--activity .admin-table__head, .admin-table--activity .admin-table__row { grid-template-columns: minmax(190px, 1.5fr) repeat(6, minmax(82px, .55fr)) minmax(130px, .8fr); }
+.admin-table--licenses .admin-table__head, .admin-table--licenses .admin-table__row { grid-template-columns: minmax(180px, 1.4fr) minmax(105px, .7fr) 100px minmax(130px, .9fr) 110px 90px; }
+.license-form { margin: 22px 0; padding: 18px; border: 1px solid var(--line); background: white; display: grid; gap: 14px; }
+.license-form__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.license-form label { min-width: 0; display: grid; gap: 6px; color: #3c4a53; font-size: 11px; font-weight: 700; }
+.license-form input, .license-form select, .license-form textarea { width: 100%; min-width: 0; border: 1px solid #cfd7db; border-radius: 5px; padding: 0 10px; background: white; color: var(--ink); font-size: 12px; }
+.license-form input, .license-form select { height: 38px; }
+.license-form textarea { min-height: 66px; padding: 9px 10px; resize: vertical; line-height: 1.45; }
+.license-form__actions { display: flex; align-items: center; gap: 14px; }
+.license-form__actions small { color: var(--muted); font-size: 10px; line-height: 1.35; }
+.license-actions { display: flex; align-items: center; gap: 2px; }
 .admin-section-heading--actions { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+.admin-section-heading__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 .admin-section-heading--actions > div > p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
 .workspace-report-modal { width: min(680px, calc(100vw - 32px)); }
 .workspace-report-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); background: white; }
@@ -824,6 +835,7 @@ h1, h2, h3 { letter-spacing: 0; }
   .admin-split { grid-template-columns: 1fr; gap: 28px; }
   .admin-compact-list time { display: none; }
   .admin-table { overflow-x: auto; overscroll-behavior-x: contain; }
+  .license-form__grid { grid-template-columns: 1fr 1fr; }
   .project-table__head { display: none; }
   .project-row { grid-template-columns: minmax(0, 1fr) 28px; gap: 10px; padding: 14px 0; }
   .project-row > span:not(.project-cell--name):not(.row-action) { display: none; }

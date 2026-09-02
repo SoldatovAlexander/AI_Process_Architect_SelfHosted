@@ -55,6 +55,20 @@ def test_client_stores_inactive_package_and_deletes_it(monkeypatch):
     assert calls == [("GET", "/architect"), ("POST", "/architect/packages"), ("DELETE", "/architect/packages/package-1")]
 
 
+def test_client_sends_the_certified_openclaw_version_when_present(monkeypatch):
+    _setup(monkeypatch)
+    prepared = PreparedAgentPackageDelivery(**{**PREPARED.__dict__, "runtime_version": "2026.8.2"})
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.method == "GET":
+            return httpx.Response(200, request=request, json={"runtime": "openclaw", "runtimeVersion": "2026.8.2"})
+        assert request.headers["X-Agent-Runtime-Version"] == "2026.8.2"
+        return httpx.Response(201, request=request, json={"id": "package-versioned", "status": "stored", "active": False})
+
+    remote_id = asyncio.run(store_inactive_agent_package(Profile(), prepared, "revision-1", "delivery-key-versioned", transport=httpx.MockTransport(handler)))
+    assert remote_id == "package-versioned"
+
+
 def test_client_removes_package_if_runtime_does_not_confirm_inactive_storage(monkeypatch):
     _setup(monkeypatch)
     calls = []

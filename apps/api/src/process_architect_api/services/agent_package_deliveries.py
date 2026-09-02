@@ -6,7 +6,7 @@ from zipfile import ZipFile
 
 import httpx
 
-from ..exporters.agents import build_agent_contract, generate_agent_package
+from ..exporters.agents import OPENCLAW_SUPPORTED_VERSIONS, build_agent_contract, generate_agent_package
 from .runtime_connections import RuntimeVerificationError, resolve_secret, validate_egress_target, verify_runtime_connection
 
 
@@ -28,13 +28,20 @@ class PreparedAgentPackageDelivery:
     blocker_count: int
     ready: bool
     runtime: str
+    runtime_version: str | None = None
 
 
-def prepare_agent_package_delivery(process_ir: dict, runtime: str, locale: str) -> PreparedAgentPackageDelivery:
+def prepare_agent_package_delivery(
+    process_ir: dict,
+    runtime: str,
+    locale: str,
+    runtime_version: str | None = None,
+) -> PreparedAgentPackageDelivery:
     if runtime not in {"openclaw", "hermes"}:
         raise ValueError("Agent package delivery supports only OpenClaw and Hermes.")
     contract = build_agent_contract(process_ir)
-    package = generate_agent_package(process_ir, runtime, locale)
+    version = runtime_version if runtime == "openclaw" and runtime_version in OPENCLAW_SUPPORTED_VERSIONS else None
+    package = generate_agent_package(process_ir, runtime, locale, version)
     if len(package) > 10 * 1024 * 1024:
         raise ValueError("Agent package exceeds the 10 MB delivery limit.")
     with ZipFile(BytesIO(package)) as archive:
@@ -50,6 +57,7 @@ def prepare_agent_package_delivery(process_ir: dict, runtime: str, locale: str) 
         blocker_count=len(readiness["blockers"]),
         ready=bool(readiness["agentReady"]),
         runtime=runtime,
+        runtime_version=version,
     )
 
 
@@ -95,6 +103,8 @@ async def store_inactive_agent_package(
             "X-Agent-Runtime": prepared.runtime,
             "X-Activation-Policy": "manual",
         }
+        if prepared.runtime_version:
+            headers["X-Agent-Runtime-Version"] = prepared.runtime_version
         async with httpx.AsyncClient(timeout=httpx.Timeout(30.0, connect=3.0), follow_redirects=False, transport=transport) as client:
             response = await client.post(_package_url(profile.endpoint_url), headers=headers, content=prepared.package)
             response.raise_for_status()

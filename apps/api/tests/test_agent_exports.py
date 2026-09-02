@@ -6,7 +6,10 @@ from io import BytesIO
 from pathlib import Path
 from zipfile import ZipFile
 
+import pytest
+
 from process_architect_api.exporters import calculate_agent_readiness, generate_agent_package
+from process_architect_api.exporters.agents import OPENCLAW_SUPPORTED_VERSIONS
 from test_api import authorization, register, request
 
 
@@ -135,6 +138,26 @@ def test_agent_contract_compiles_visual_editor_configuration():
     assert contract["observability"]["events"] == ["agent_started", "error", "human_review", "tool_call"]
 
 
+def test_openclaw_packages_are_versioned_and_keep_session_isolation():
+    process_ir = configured_agent_process()
+    default_package = generate_agent_package(process_ir, "openclaw")
+    with ZipFile(BytesIO(default_package)) as archive:
+        assert json.loads(archive.read("openclaw/COMPATIBILITY.json"))["targetOpenClawVersion"] == "2026.7.1"
+
+    for version in OPENCLAW_SUPPORTED_VERSIONS:
+        package = generate_agent_package(process_ir, "openclaw", runtime_version=version)
+        with ZipFile(BytesIO(package)) as archive:
+            compatibility = json.loads(archive.read("openclaw/COMPATIBILITY.json"))
+            config = json.loads(archive.read("openclaw/openclaw.config.fragment.json5"))
+            assert compatibility["targetOpenClawVersion"] == version
+            assert compatibility["certifiedOpenClawVersions"] == list(OPENCLAW_SUPPORTED_VERSIONS)
+            assert config["tools"]["sessions"]["visibility"] == "self"
+            assert f"OpenClaw {version}" in archive.read("openclaw/README.md").decode()
+
+    with pytest.raises(ValueError, match="Unsupported OpenClaw version"):
+        generate_agent_package(process_ir, "openclaw", runtime_version="latest")
+
+
 def test_agent_config_rejects_unknown_process_state():
     process_ir = configured_agent_process()
     task = next(step for step in process_ir["steps"] if step["execution"]["performedBy"] == "ai")
@@ -174,7 +197,7 @@ def test_agent_readiness_blocks_process_without_explicit_ai_role():
     assert "agent_role_not_defined" in readiness["blockers"]
 
 
-def test_community_keeps_agent_mode_but_blocks_agent_package_export():
+def test_agent_export_and_project_mode_api():
     tokens = register()
     headers = authorization(tokens)
     user = request("GET", "/api/v1/auth/me", headers=headers).json()
@@ -212,8 +235,28 @@ def test_community_keeps_agent_mode_but_blocks_agent_package_export():
         headers=headers,
         json=agent_process(),
     )
-    assert exported.status_code == 403
-    assert exported.json()["detail"]["entitlementId"] == "export.agent"
+    assert exported.status_code == 200
+    assert exported.headers["content-type"] == "application/zip"
+    assert "agent-openclaw.zip" in exported.headers["content-disposition"]
+
+    current_export = request(
+        "POST",
+        "/api/v1/exports/agent/openclaw/package?locale=ru&runtimeVersion=2026.8.2",
+        headers=headers,
+        json=agent_process(),
+    )
+    assert current_export.status_code == 200
+    with ZipFile(BytesIO(current_export.content)) as archive:
+        assert json.loads(archive.read("openclaw/COMPATIBILITY.json"))["targetOpenClawVersion"] == "2026.8.2"
+
+    unsupported_export = request(
+        "POST",
+        "/api/v1/exports/agent/openclaw/package?runtimeVersion=latest",
+        headers=headers,
+        json=agent_process(),
+    )
+    assert unsupported_export.status_code == 422
+    assert unsupported_export.json()["detail"]["code"] == "unsupported_openclaw_version"
 
     python_export = request(
         "POST",
@@ -221,8 +264,8 @@ def test_community_keeps_agent_mode_but_blocks_agent_package_export():
         headers=headers,
         json=agent_process(),
     )
-    assert python_export.status_code == 403
-    assert python_export.json()["detail"]["entitlementId"] == "export.agent"
+    assert python_export.status_code == 200
+    assert "agent-agno.zip" in python_export.headers["content-disposition"]
 
 
 def test_project_can_be_created_directly_in_agent_mode():

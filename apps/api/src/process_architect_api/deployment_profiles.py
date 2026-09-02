@@ -48,7 +48,7 @@ class AdministrationPolicy(BaseModel):
 
     mode: Literal["hosted", "self_hosted"] = "self_hosted"
     billing_enabled: bool = Field(default=False, alias="billingEnabled")
-    license_mode: Literal["issuer", "consumer", "none"] = Field(default="none", alias="licenseMode")
+    license_mode: Literal["issuer", "consumer", "none"] = Field(default="consumer", alias="licenseMode")
 
     @model_validator(mode="after")
     def validate_mode_capabilities(self):

@@ -19,12 +19,17 @@ def load_profile(monkeypatch, profile_id: str):
     return get_deployment_profile()
 
 
-def test_builtin_community_profiles_disable_licensing(monkeypatch):
+def test_builtin_profiles_separate_hosted_and_self_hosted_administration(monkeypatch):
+    hosted = load_profile(monkeypatch, "hosted")
+    assert hosted.administration.mode == "hosted"
+    assert hosted.administration.billing_enabled is True
+    assert hosted.administration.license_mode == "issuer"
+
     for profile_id in ("default", "restricted", "fully-local"):
         profile = load_profile(monkeypatch, profile_id)
         assert profile.administration.mode == "self_hosted"
         assert profile.administration.billing_enabled is False
-        assert profile.administration.license_mode == "none"
+        assert profile.administration.license_mode == "consumer"
 
 
 def test_legacy_custom_profile_receives_safe_administration_defaults(tmp_path, monkeypatch):
@@ -51,7 +56,7 @@ def test_legacy_custom_profile_receives_safe_administration_defaults(tmp_path, m
 
     assert profile.administration.mode == "self_hosted"
     assert profile.administration.billing_enabled is False
-    assert profile.administration.license_mode == "none"
+    assert profile.administration.license_mode == "consumer"
 
 
 def test_self_hosted_profile_cannot_enable_hosted_billing(tmp_path, monkeypatch):
@@ -74,4 +79,4 @@ def test_self_hosted_profile_rejects_stripe_webhooks(monkeypatch):
     response = request("POST", "/api/v1/billing/webhooks/stripe", content=b"{}")
 
     assert response.status_code == 404
-    assert response.json()["detail"] == "Not Found"
+    assert response.json()["detail"]["code"] == "billing_webhook_unavailable"
