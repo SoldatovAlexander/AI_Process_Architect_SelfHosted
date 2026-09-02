@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     license_revocations_path: str = str(WORKSPACE_ROOT / "config" / "licensing" / "revocations.json")
     license_server_url: str = ""
     license_server_token: SecretStr | None = None
+    license_request_email: str = ""
     license_control_plane_url: str = ""
     license_control_plane_operator_token: SecretStr | None = None
     license_issuer_private_key_path: str = ""

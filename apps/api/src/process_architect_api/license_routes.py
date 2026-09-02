@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -72,10 +73,40 @@ def _response(db: Session, workspace_id: str) -> dict[str, Any]:
     }
 
 
+def _request_response(db: Session, workspace_id: str, settings: Settings) -> dict[str, Any]:
+    status_response = _response(db, workspace_id)
+    license_record = status_response["license"]
+    expires_at = license_record["expiresAt"] if license_record else None
+    expires_at_value = None if not expires_at else datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
+    remaining = None if expires_at_value is None else expires_at_value - datetime.now(timezone.utc)
+    days_until_expiry = None if remaining is None else max(0, int(remaining.total_seconds() / 86_400))
+    request_type = "renewal" if license_record else "initial"
+    return {
+        "requestVersion": "1.0",
+        "requestType": request_type,
+        "product": "ai-process-architect",
+        "deploymentId": status_response["deploymentId"],
+        "workspaceId": workspace_id,
+        "licenseId": None if license_record is None else license_record["licenseId"],
+        "licenseExpiresAt": expires_at,
+        "renewalAvailable": request_type == "renewal" and remaining is not None and remaining <= timedelta(days=7),
+        "daysUntilExpiry": days_until_expiry,
+        "requestedMonths": 1,
+        "contactEmail": settings.license_request_email.strip(),
+        "generatedAt": datetime.now(timezone.utc).isoformat(),
+    }
+
+
 @router.get("/workspaces/{workspace_id}/license")
 def license_status(workspace_id: str, current_user: CurrentUser, db: DbSession) -> dict[str, Any]:
     _owner(db, workspace_id, current_user)
     return _response(db, workspace_id)
+
+
+@router.get("/workspaces/{workspace_id}/license/request")
+def license_request(workspace_id: str, current_user: CurrentUser, db: DbSession, settings: AppSettings) -> dict[str, Any]:
+    _owner(db, workspace_id, current_user)
+    return _request_response(db, workspace_id, settings)
 
 
 @router.post("/workspaces/{workspace_id}/license/offline")

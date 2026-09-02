@@ -26,8 +26,12 @@ idempotency, журналом операций и отдельными operator/
 операторские ключ и токены хранятся в отдельном `.env.license-control` вне Git.
 Любой другой адрес control plane должен использовать HTTPS.
 
-1. Владелец workspace запрашивает `GET /api/v1/workspaces/{workspaceId}/license` и получает
-   стабильный `deploymentId` и `workspaceId`.
+1. Владелец workspace открывает **«Лицензия self-hosted»** и нажимает **«Получить лицензию»**.
+   Система формирует безопасную заявку с постоянными `deploymentId` и `workspaceId`: её можно
+   скачать, скопировать или открыть как письмо, если администратор установки задал
+   `LICENSE_REQUEST_EMAIL`. Заявка ничего не отправляет сама. Для продления кнопка появляется за
+   семь дней до срока лицензии и формирует заявку с `licenseId`. Те же данные доступны по
+   `GET /api/v1/workspaces/{workspaceId}/license/request`.
 2. Издатель формирует payload по `license-envelope-v1.schema.json`, подписывает канонический JSON
    приватным Ed25519-ключом и передаёт envelope клиенту. Приватный ключ никогда не устанавливается
    на сервер клиента.
@@ -63,8 +67,12 @@ only on `127.0.0.1:8090`. The API reaches `http://license-control:8090` using it
 token; issuer keys and control-plane tokens remain in a separate `.env.license-control` outside Git.
 Any other control-plane address must use HTTPS.
 
-1. A workspace owner calls `GET /api/v1/workspaces/{workspaceId}/license` to obtain the stable
-   `deploymentId` and `workspaceId`.
+1. A workspace owner opens **Self-hosted license** and selects **Get license**. The application
+   creates a safe request containing stable `deploymentId` and `workspaceId`; it can be downloaded,
+   copied, or opened as a prefilled email when the installation administrator sets
+   `LICENSE_REQUEST_EMAIL`. The request is never sent automatically. Renewal becomes available seven
+   days before expiry and includes the `licenseId`. The same data is available from
+   `GET /api/v1/workspaces/{workspaceId}/license/request`.
 2. The issuer creates a payload conforming to `license-envelope-v1.schema.json`, signs its canonical
    JSON with an Ed25519 private key, and supplies the envelope. The private key is never installed on
    the customer server.

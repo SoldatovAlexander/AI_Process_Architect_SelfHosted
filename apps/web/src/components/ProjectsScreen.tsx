@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
-import { Archive, ArchiveRestore, ArrowRight, BarChart3, Bot, CheckCircle2, ChevronDown, ChevronRight, CircleOff, Clock3, Copy, Crown, Download, FileArchive, FileJson, FolderKanban, FolderPlus, KeyRound, LayoutTemplate, LoaderCircle, LogOut, MonitorCog, Pencil, PlugZap, Plus, RotateCcw, Search, ShieldCheck, Star, Trash2, Upload, UserMinus, Users, Workflow, X } from 'lucide-react'
+import { Archive, ArchiveRestore, ArrowRight, BarChart3, Bot, CheckCircle2, ChevronDown, ChevronRight, CircleOff, Clock3, Copy, Crown, Download, FileArchive, FileJson, FolderKanban, FolderPlus, KeyRound, LayoutTemplate, LoaderCircle, LogOut, Mail, MonitorCog, Pencil, PlugZap, Plus, RotateCcw, Search, ShieldCheck, Star, Trash2, Upload, UserMinus, Users, Workflow, X } from 'lucide-react'
 import { api, ApiError } from '../api'
 import { downloadActivityReportXlsx, type ActivityReportExportLabels } from '../activity-report-export'
 import { createProcessTemplate } from '../process-template'
-import type { AdminActivityReport, LLMConfiguration, LLMCredentialInput, LLMProvider, ProcessTemplate, Project, ProjectArchiveValidation, Readiness, Rubric, RuntimeConnectionInput, RuntimeConnectionProfile, TemplateCollection, TemplateCollectionItem, User, WorkspaceAuditEvent, WorkspaceInvitation, WorkspaceMember } from '../types'
+import type { AdminActivityReport, LLMConfiguration, LLMCredentialInput, LLMProvider, ProcessTemplate, Project, ProjectArchiveValidation, Readiness, Rubric, RuntimeConnectionInput, RuntimeConnectionProfile, TemplateCollection, TemplateCollectionItem, User, WorkspaceAuditEvent, WorkspaceInvitation, WorkspaceLicenseRequest, WorkspaceMember } from '../types'
 import { useI18n } from '../i18n/context'
 import { Brand } from './Brand'
 import { LanguageSwitch } from './LanguageSwitch'
@@ -20,6 +20,7 @@ export function ProjectsScreen({ user, invitationNotice, onOpen, onAdmin, onLogo
   const [showArchiveImport, setShowArchiveImport] = useState(false)
   const [showConnections, setShowConnections] = useState(false)
   const [showLlmSettings, setShowLlmSettings] = useState(false)
+  const [showLicense, setShowLicense] = useState(false)
   const [showWorkspaceRename, setShowWorkspaceRename] = useState(false)
   const [showWorkspaceCreate, setShowWorkspaceCreate] = useState(false)
   const [showWorkspaceMembers, setShowWorkspaceMembers] = useState(false)
@@ -172,6 +173,7 @@ export function ProjectsScreen({ user, invitationNotice, onOpen, onAdmin, onLogo
           <button className="nav-button" data-help-topic="templates" onClick={openCreate} title={t('templates')}><LayoutTemplate size={19} /><span>{t('templates')}</span></button>
           <button className="nav-button" data-help-topic="connections" onClick={() => setShowConnections(true)} title={t('connections')}><PlugZap size={19} /><span>{t('connections')}</span></button>
           {llmConfiguration?.deployment_profile.credential_management_enabled && <button className="nav-button" onClick={() => setShowLlmSettings(true)} title={t('llmSettings')}><KeyRound size={19} /><span>{t('llmSettings')}</span></button>}
+          {llmConfiguration?.deployment_profile.license_mode === 'consumer' && activeWorkspace?.role === 'owner' && <button className="nav-button" onClick={() => setShowLicense(true)} title={t('selfHostedLicense')}><KeyRound size={19} /><span>{t('selfHostedLicense')}</span></button>}
           {onAdmin && <button className="nav-button" onClick={onAdmin} title={t('admin')}><ShieldCheck size={19} /><span>{t('admin')}</span></button>}
         </nav>
         <button className="nav-button global-sidebar__logout" onClick={onLogout} title={t('logout')}><LogOut size={19} /><span>{t('logout')}</span></button>
@@ -179,7 +181,7 @@ export function ProjectsScreen({ user, invitationNotice, onOpen, onAdmin, onLogo
       <main className="projects-page" data-help-topic="projects">
         <header className="topbar projects-topbar">
           <div><span className="eyebrow">{t('workspace')}</span><div className="workspace-name" data-help-topic="workspace"><select value={activeWorkspace?.workspace_id ?? ''} onChange={(event) => void switchWorkspace(event.target.value)} aria-label={t('switchWorkspace')}>{activeWorkspaces.length === 0 && <option value="">{t('noActiveWorkspace')}</option>}{activeWorkspaces.map((workspace) => <option value={workspace.workspace_id} key={workspace.workspace_id}>{workspace.workspace_name}</option>)}</select>{activeWorkspace && <button className="icon-button workspace-members-button" onClick={() => setShowWorkspaceMembers(true)} title={t('workspaceMembers')} aria-label={t('workspaceMembers')}><Users size={16} /></button>}{activeWorkspace && <button className="icon-button" onClick={() => setShowWorkspaceReport(true)} title={t('adminReports')} aria-label={t('adminReports')}><BarChart3 size={16} /></button>}{activeWorkspace?.role === 'owner' && <button className="icon-button workspace-rename-button" onClick={() => setShowWorkspaceRename(true)} title={t('renameWorkspace')} aria-label={t('renameWorkspace')}><Pencil size={15} /></button>}{archivedWorkspaces.length > 0 && <button className="icon-button" onClick={() => setShowArchivedWorkspaces(true)} title={t('archivedWorkspaces')} aria-label={t('archivedWorkspaces')}><ArchiveRestore size={16} /></button>}<button className="icon-button" onClick={() => setShowWorkspaceCreate(true)} title={t('createWorkspace')} aria-label={t('createWorkspace')}><Plus size={16} /></button></div></div>
-          <div className="topbar__actions"><LanguageSwitch />{llmConfiguration?.deployment_profile.credential_management_enabled && <button className="icon-button" onClick={() => setShowLlmSettings(true)} title={t('llmSettings')} aria-label={t('llmSettings')}><KeyRound size={18} /></button>}<button className="icon-button" data-help-topic="connections" onClick={() => setShowConnections(true)} title={t('connections')} aria-label={t('connections')} disabled={!activeWorkspace}><PlugZap size={18} /></button><button className="icon-button" data-help-topic="backup" onClick={() => setShowArchiveImport(true)} title={t('restoreBackup')} aria-label={t('restoreBackup')} disabled={!activeWorkspace}><ArchiveRestore size={18} /></button><button className="button button--secondary" data-help-topic="import" onClick={() => setShowImport(true)} disabled={!activeWorkspace}><Upload size={17} />{t('importN8n')}</button><button className="button button--primary" data-help-topic="new_project" onClick={openCreate} disabled={!activeWorkspace}><Plus size={17} />{t('newProject')}</button></div>
+          <div className="topbar__actions"><LanguageSwitch />{llmConfiguration?.deployment_profile.credential_management_enabled && <button className="icon-button" onClick={() => setShowLlmSettings(true)} title={t('llmSettings')} aria-label={t('llmSettings')}><KeyRound size={18} /></button>}{llmConfiguration?.deployment_profile.license_mode === 'consumer' && activeWorkspace?.role === 'owner' && <button className="icon-button" onClick={() => setShowLicense(true)} title={t('selfHostedLicense')} aria-label={t('selfHostedLicense')}><KeyRound size={18} /></button>}<button className="icon-button" data-help-topic="connections" onClick={() => setShowConnections(true)} title={t('connections')} aria-label={t('connections')} disabled={!activeWorkspace}><PlugZap size={18} /></button><button className="icon-button" data-help-topic="backup" onClick={() => setShowArchiveImport(true)} title={t('restoreBackup')} aria-label={t('restoreBackup')} disabled={!activeWorkspace}><ArchiveRestore size={18} /></button><button className="button button--secondary" data-help-topic="import" onClick={() => setShowImport(true)} disabled={!activeWorkspace}><Upload size={17} />{t('importN8n')}</button><button className="button button--primary" data-help-topic="new_project" onClick={openCreate} disabled={!activeWorkspace}><Plus size={17} />{t('newProject')}</button></div>
         </header>
         <section className="projects-content">
           <div className="section-heading"><div><span className="section-label">{t('allProcesses')}</span><h2>{t('projects')}</h2></div><span className="count-badge">{projects.length}</span></div>
@@ -216,6 +218,7 @@ export function ProjectsScreen({ user, invitationNotice, onOpen, onAdmin, onLogo
       {showArchiveImport && <ArchiveImportModal workspaceId={activeWorkspace?.workspace_id ?? ''} busy={busy} setBusy={setBusy} onClose={() => setShowArchiveImport(false)} onRestored={(project) => { setShowArchiveImport(false); onOpen(project.id) }} />}
       {showConnections && activeWorkspace && <RuntimeConnectionsModal workspaceId={activeWorkspace.workspace_id} canManage={activeWorkspace.role === 'owner'} onClose={() => setShowConnections(false)} />}
       {showLlmSettings && <LlmSettingsModal onClose={() => setShowLlmSettings(false)} />}
+      {showLicense && activeWorkspace && <WorkspaceLicenseModal workspaceId={activeWorkspace.workspace_id} workspaceName={activeWorkspace.workspace_name} onClose={() => setShowLicense(false)} />}
       {showWorkspaceRename && activeWorkspace && <WorkspaceNameModal title={t('renameWorkspace')} hint={t('renameWorkspaceHint')} initialName={activeWorkspace.workspace_name} busy={busy} onClose={() => setShowWorkspaceRename(false)} onSave={renameWorkspace} />}
       {showWorkspaceReport && activeWorkspace && <WorkspaceActivityReportModal workspaceId={activeWorkspace.workspace_id} workspaceName={activeWorkspace.workspace_name} onClose={() => setShowWorkspaceReport(false)} />}
       {showWorkspaceCreate && <WorkspaceNameModal title={t('createWorkspace')} hint={t('createWorkspaceHint')} initialName="" busy={busy} onClose={() => setShowWorkspaceCreate(false)} onSave={createWorkspace} />}
@@ -244,6 +247,39 @@ function WorkspaceActivityReportModal({ workspaceId, workspaceName, onClose }: {
   }
   const downloadXlsx = () => report && void downloadActivityReportXlsx(report, workspaceActivityReportLabels(t), 'workspace-report')
   return <div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><div className="modal workspace-report-modal"><div className="modal__header"><div><span className="section-label">{workspaceName}</span><h2>{t('adminActivityReport')}</h2></div><button className="icon-button" onClick={onClose} aria-label={t('close')}><X size={18} /></button></div>{error && <div className="notice notice--error">{error}</div>}{!report ? <div className="loading-state"><LoaderCircle className="spin" size={20} />{t('loading')}</div> : <><p className="modal__description">{new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date(report.periodStart))} - {new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date(report.periodEnd))}</p><div className="workspace-report-grid"><span><small>{t('adminWorkflowsCreated')}</small><strong>{number(report.summary.workflowsCreated)}</strong></span><span><small>{t('adminReady')}</small><strong>{number(report.summary.workflowsReady)}</strong></span><span><small>{t('adminInProgress')}</small><strong>{number(report.summary.workflowsInProgress)}</strong></span><span><small>n8n</small><strong>{number(report.summary.n8nPublications)}</strong></span><span><small>{t('adminAgents')}</small><strong>{number(report.summary.agentDeliveries)}</strong></span><span><small>{t('adminTokensSpent')}</small><strong>{number(report.summary.totalTokens)}</strong></span></div><div className="modal__actions"><button className="button button--secondary" onClick={downloadCsv}><Download size={16} />{t('adminDownloadCsv')}</button><button className="button button--secondary" onClick={downloadXlsx}><Download size={16} />{t('adminDownloadXlsx')}</button><button className="button button--primary" onClick={onClose}>{t('close')}</button></div></>}</div></div>
+}
+
+function WorkspaceLicenseModal({ workspaceId, workspaceName, onClose }: { workspaceId: string; workspaceName: string; onClose: () => void }) {
+  const { locale, t } = useI18n()
+  const [licenseRequest, setLicenseRequest] = useState<WorkspaceLicenseRequest | null>(null)
+  const [error, setError] = useState('')
+  const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    api.workspaceLicenseRequest(workspaceId).then((value) => active && setLicenseRequest(value)).catch((reason) => active && setError(reason instanceof ApiError ? reason.message : t('error')))
+    return () => { active = false }
+  }, [t, workspaceId])
+
+  const requestText = licenseRequest ? JSON.stringify(licenseRequest, null, 2) : ''
+  const requestLabel = licenseRequest?.requestType === 'renewal' ? t('renewSelfHostedLicense') : t('getSelfHostedLicense')
+  const emailSubject = `${t('selfHostedLicense')} · ${requestLabel}`
+  const emailBody = `${t('licenseRequestEmailIntro')}\n\n${requestText}`
+  const expires = licenseRequest?.licenseExpiresAt ? new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date(licenseRequest.licenseExpiresAt)) : null
+
+  function downloadRequest() {
+    if (!licenseRequest) return
+    const url = URL.createObjectURL(new Blob([`${requestText}\n`], { type: 'application/json' }))
+    const link = document.createElement('a'); link.href = url; link.download = `ai-process-architect-license-${licenseRequest.requestType}-${workspaceId.slice(0, 8)}.json`; link.click(); URL.revokeObjectURL(url)
+  }
+
+  async function copyRequest() {
+    if (!requestText) return
+    await navigator.clipboard.writeText(emailBody)
+    setCopied(true)
+  }
+
+  return <div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><div className="modal modal--small"><div className="modal__header"><div><span className="section-label">SELF-HOSTED</span><h2>{t('selfHostedLicense')}</h2></div><button className="icon-button" onClick={onClose} aria-label={t('close')}><X size={18} /></button></div>{error && <div className="notice notice--error">{error}</div>}{!licenseRequest ? <div className="loading-state"><LoaderCircle className="spin" size={20} />{t('loading')}</div> : <><p className="modal__description">{licenseRequest.requestType === 'initial' ? t('licenseInitialHint') : licenseRequest.renewalAvailable ? t('licenseRenewalHint') : t('licenseRenewalNotYet')}</p><div className="archive-validation"><strong>{requestLabel}</strong><span>{t('workspace')}: {workspaceName}</span>{expires && <span>{t('adminLicenseExpires')}: {expires}</span>}{licenseRequest.daysUntilExpiry !== null && <span>{t('licenseDaysRemaining')}: {licenseRequest.daysUntilExpiry}</span>}<small>{t('licensePrivacyHint')}</small></div>{(licenseRequest.requestType === 'initial' || licenseRequest.renewalAvailable) && <div className="modal__actions"><button className="button button--secondary" onClick={() => void copyRequest()}><Copy size={16} />{copied ? t('licenseRequestCopied') : t('copyLicenseRequest')}</button><button className="button button--secondary" onClick={downloadRequest}><Download size={16} />{t('downloadLicenseRequest')}</button>{licenseRequest.contactEmail && <a className="button button--primary" href={`mailto:${licenseRequest.contactEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`}><Mail size={16} />{t('prepareLicenseEmail')}</a>}</div>}<div className="modal__actions"><button className="button button--secondary" onClick={onClose}>{t('close')}</button></div></>}</div></div>
 }
 
 function workspaceActivityReportLabels(t: (key: Parameters<ReturnType<typeof useI18n>['t']>[0]) => string): ActivityReportExportLabels {

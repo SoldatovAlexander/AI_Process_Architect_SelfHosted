@@ -131,6 +131,20 @@ export interface AdminSelfHostedLicense {
   envelope?: { payload: Record<string, unknown>; signature: string }
 }
 
+export interface WorkspaceLicenseRequest {
+  requestType: 'initial' | 'renewal'
+  product: string
+  deploymentId: string
+  workspaceId: string
+  licenseId: string | null
+  licenseExpiresAt: string | null
+  renewalAvailable: boolean
+  daysUntilExpiry: number | null
+  requestedMonths: number
+  contactEmail: string
+  generatedAt: string
+}
+
 export interface AdminLLMUsage {
   summary: {
     periodStart: string
@@ -270,6 +284,7 @@ export interface LLMConfiguration {
     custom_base_url_allowed: boolean
     local_endpoints_allowed: boolean
     credential_management_enabled: boolean
+    license_mode: 'issuer' | 'consumer' | 'none'
   }
   providers: Array<{ id: LLMProvider; default_base_url: string; requires_api_key: boolean }>
   credentials: LLMCredentialSummary[]

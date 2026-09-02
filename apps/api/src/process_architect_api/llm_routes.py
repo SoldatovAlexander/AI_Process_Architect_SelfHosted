@@ -62,6 +62,7 @@ def configuration(current_user: CurrentUser, db: DbSession, settings: AppSetting
             "custom_base_url_allowed": profile.llm.custom_base_url_allowed,
             "local_endpoints_allowed": profile.llm.local_endpoints_allowed,
             "credential_management_enabled": credential_management_enabled,
+            "license_mode": profile.administration.license_mode,
         },
         "providers": [
             {

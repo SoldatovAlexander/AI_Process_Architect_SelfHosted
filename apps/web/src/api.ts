@@ -52,6 +52,7 @@ import type {
   AdminActivityReport,
   AdminSelfHostedLicense,
   AdminPage,
+  WorkspaceLicenseRequest,
 } from './types'
 
 const ACCESS_TOKEN = 'apa_access_token'
@@ -153,6 +154,7 @@ export const api = {
   renewSelfHostedLicense: (licenseId: string, input: { months?: number; reason: string; idempotencyKey: string }) => request<AdminSelfHostedLicense>(`/api/v1/admin/self-hosted-licenses/${licenseId}/renew`, { method: 'POST', body: JSON.stringify(input) }),
   revokeSelfHostedLicense: (licenseId: string, reason: string) => request<AdminSelfHostedLicense>(`/api/v1/admin/self-hosted-licenses/${licenseId}/revoke`, { method: 'POST', body: JSON.stringify({ reason }) }),
   workspaceActivityReport: (workspaceId: string) => request<AdminActivityReport>(`/api/v1/workspaces/${workspaceId}/activity-report`),
+  workspaceLicenseRequest: (workspaceId: string) => request<WorkspaceLicenseRequest>(`/api/v1/workspaces/${workspaceId}/license/request`),
   renameWorkspace: (workspaceId: string, name: string) => request<{ id: string; name: string; defaultLocale: string }>(`/api/v1/workspaces/${workspaceId}`, { method: 'PATCH', body: JSON.stringify({ name }) }),
   createWorkspace: (name: string, defaultLocale: Locale) => request<WorkspaceMembership>('/api/v1/workspaces', { method: 'POST', body: JSON.stringify({ name, default_locale: defaultLocale }) }),
   activateWorkspace: (workspaceId: string) => request<WorkspaceMembership>(`/api/v1/workspaces/${workspaceId}/active`, { method: 'PUT' }),

@@ -9,7 +9,6 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from process_architect_api.config import get_settings
 from process_architect_api.config import Settings
-from process_architect_api.hosted.license_control import LicenseControlError, _base_url
 from process_architect_api.services.licensing import canonical_payload
 from process_architect_api.deployment_profiles import clear_deployment_profile_cache
 
@@ -17,6 +16,10 @@ from test_api import authorization, request
 
 
 def test_license_control_allows_only_private_docker_http_endpoint():
+    try:
+        from process_architect_api.hosted.license_control import LicenseControlError, _base_url
+    except ModuleNotFoundError:
+        pytest.skip("Hosted License Control Plane is excluded from the public self-hosted edition.")
     settings = Settings(
         license_control_plane_url="http://license-control:8090",
         license_control_plane_operator_token="operator-token",
@@ -90,6 +93,28 @@ def test_offline_license_activation_updates_effective_entitlements(tmp_path, mon
     assert activated.json()["license"]["activationSource"] == "offline"
     assert effective.json()["source"] == "license"
     assert effective.json()["entitlements"]["project.max_active"] == 3
+
+
+def test_license_request_is_safe_and_only_allows_renewal_in_last_week(tmp_path, monkeypatch):
+    private_key, _ = configure_issuer(tmp_path, monkeypatch)
+    monkeypatch.setenv("LICENSE_REQUEST_EMAIL", "licenses@example.com")
+    get_settings.cache_clear()
+    headers, workspace_id = register()
+
+    initial = request("GET", f"/api/v1/workspaces/{workspace_id}/license/request", headers=headers)
+    assert initial.status_code == 200
+    assert initial.json()["requestType"] == "initial"
+    assert initial.json()["contactEmail"] == "licenses@example.com"
+    assert "email" not in initial.json()
+
+    deployment_id = initial.json()["deploymentId"]
+    request("POST", f"/api/v1/workspaces/{workspace_id}/license/offline", headers=headers, json={
+        "envelope": envelope(private_key, deployment_id, workspace_id),
+    })
+    renewal = request("GET", f"/api/v1/workspaces/{workspace_id}/license/request", headers=headers)
+    assert renewal.json()["requestType"] == "renewal"
+    assert renewal.json()["renewalAvailable"] is False
+    assert renewal.json()["licenseId"] == "license-test-0001"
 
 
 def test_tampered_and_foreign_licenses_are_rejected(tmp_path, monkeypatch):
